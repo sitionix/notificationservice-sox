@@ -1,0 +1,5 @@
+{
+  "idempotencyId": "idemp-verify-123",
+  "createdAt": 1704067200000,
+  "eventType": "EMAIL_VERIFY"
+}
