@@ -12,7 +12,7 @@
 
     <artifactId>client-bffssox</artifactId>
     <properties>
-        <athssox.api.version>0.0.5</athssox.api.version>
+        <athssox.api.version>0.0.6</athssox.api.version>
     </properties>
     <dependencies>
         <!-- MODULE -->
@@ -67,6 +67,10 @@
             <artifactId>spring-web</artifactId>
             <version>6.1.13</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
     <build>
