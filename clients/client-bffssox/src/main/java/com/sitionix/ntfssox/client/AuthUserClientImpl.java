@@ -21,7 +21,6 @@ public class AuthUserClientImpl implements AuthUserClient {
     @Override
     public void verifyEmail(final EmailVerifyPayload payload) {
         final EmailVerificationDTO request = this.emailVerifyClientMapper.asEmailVerificationDto(payload);
-
         this.authApi.verifyEmail(request);
     }
 }
