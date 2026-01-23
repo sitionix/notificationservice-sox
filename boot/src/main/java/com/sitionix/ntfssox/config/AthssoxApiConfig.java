@@ -1,8 +1,8 @@
 package com.sitionix.ntfssox.config;
 
-import com.app_afesox.bffssox.client.api.AuthApi;
-import com.app_afesox.bffssox.client.api.UserApi;
-import com.app_afesox.bffssox.client.invoker.ApiClient;
+import com.app_afesox.athssox.client.api.AuthApi;
+import com.app_afesox.athssox.client.api.UserApi;
+import com.app_afesox.athssox.client.invoker.ApiClient;
 import lombok.Data;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,13 +17,13 @@ import org.springframework.web.client.RestTemplate;
 
 @Data
 @Configuration
-@ConfigurationProperties(prefix = "api.rest.client.bffssox")
-public class BffssoxApiConfig {
+@ConfigurationProperties(prefix = "api.rest.client.athssox")
+public class AthssoxApiConfig {
 
     private String basePath;
 
-    @Bean("bffssoxClient")
-    public ApiClient bffssoxClient(@Qualifier("bffssoxRestTemplate") final RestTemplate restTemplate) {
+    @Bean("athssoxClient")
+    public ApiClient athssoxClient(@Qualifier("athssoxRestTemplate") final RestTemplate restTemplate) {
         final ApiClient apiClient = new ApiClient(restTemplate);
 
         if (this.basePath != null && !this.basePath.isBlank()) {
@@ -35,20 +35,20 @@ public class BffssoxApiConfig {
         return apiClient;
     }
 
-    @Bean("bffssoxRestTemplate")
-    public RestTemplate bffssoxRestTemplate() {
+    @Bean("athssoxRestTemplate")
+    public RestTemplate athssoxRestTemplate() {
         final HttpComponentsClientHttpRequestFactory requestFactory =
                 new HttpComponentsClientHttpRequestFactory(HttpClients.createDefault());
         return new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
     }
 
-    @Bean("bffssoxAuthApi")
-    public AuthApi authApi(@Qualifier("bffssoxClient") final ApiClient apiClient) {
+    @Bean("athssoxAuthApi")
+    public AuthApi authApi(@Qualifier("athssoxClient") final ApiClient apiClient) {
         return new AuthApi(apiClient);
     }
 
-    @Bean("bffssoxUserApi")
-    public UserApi userApi(@Qualifier("bffssoxClient") final ApiClient apiClient) {
+    @Bean("athssoxUserApi")
+    public UserApi userApi(@Qualifier("athssoxClient") final ApiClient apiClient) {
         return new UserApi(apiClient);
     }
 }

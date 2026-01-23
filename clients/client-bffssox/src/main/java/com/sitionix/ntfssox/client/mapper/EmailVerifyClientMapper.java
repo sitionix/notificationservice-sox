@@ -12,15 +12,27 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = MapstructModel.COMPONENT_MODEL)
 public interface EmailVerifyClientMapper {
 
-    @Mapping(target = "token", expression = "java(extractToken(payload))")
-    @Mapping(target = "siteId", source = "meta.siteId")
-    EmailVerificationDTO asEmailVerificationDto(EmailVerifyPayload payload);
+    @Mapping(target = "token", expression = "java(extractToken(payload, verifyUrl))")
+    @Mapping(target = "siteId", source = "payload.meta.siteId")
+    EmailVerificationDTO asEmailVerificationDto(EmailVerifyPayload payload, String verifyUrl);
 
-    default String extractToken(final EmailVerifyPayload payload) {
+    default EmailVerificationDTO asEmailVerificationDto(final EmailVerifyPayload payload) {
+        return asEmailVerificationDto(payload, null);
+    }
+
+    default String extractToken(final EmailVerifyPayload payload, final String verifyUrl) {
+        final String resolvedUrl = resolveVerifyUrl(payload, verifyUrl);
+        return extractQueryParam(resolvedUrl, "token");
+    }
+
+    private static String resolveVerifyUrl(final EmailVerifyPayload payload, final String verifyUrl) {
+        if (verifyUrl != null && !verifyUrl.isBlank()) {
+            return verifyUrl;
+        }
         if (payload == null || payload.getParams() == null) {
             return null;
         }
-        return extractQueryParam(payload.getParams().getVerifyUrl(), "token");
+        return payload.getParams().getVerifyUrl();
     }
 
     private static String extractQueryParam(final String verifyUrl, final String name) {

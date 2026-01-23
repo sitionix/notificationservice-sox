@@ -3,4 +3,6 @@ api:
   rest:
     client:
       bffssox:
-        base-path: ${forge-it.wiremock.base-url:http://localhost:8080/bffssox}
+        base-path: ${forge-it.wiremock.base-url:http://localhost:8080}/bffssox
+      athssox:
+        base-path: ${forge-it.wiremock.base-url:http://localhost:8080}/authsox

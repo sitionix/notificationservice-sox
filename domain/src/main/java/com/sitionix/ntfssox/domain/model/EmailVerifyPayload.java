@@ -38,6 +38,8 @@ public class EmailVerifyPayload {
     @EqualsAndHashCode
     public static class Params {
         private String verifyUrl;
+        private UUID emailVerificationTokenId;
+        private UUID pepperId;
     }
 
     @Data

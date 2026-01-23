@@ -9,12 +9,14 @@ COPY application/pom.xml application/pom.xml
 COPY pipe/pom.xml pipe/pom.xml
 COPY pipe/pipe-consumer-email-verify/pom.xml pipe/pipe-consumer-email-verify/pom.xml
 COPY clients/pom.xml clients/pom.xml
+COPY clients/client-athssox/pom.xml clients/client-athssox/pom.xml
 COPY clients/client-bffssox/pom.xml clients/client-bffssox/pom.xml
 COPY jacoco-report/pom.xml jacoco-report/pom.xml
 COPY boot/src boot/src
 COPY domain/src domain/src
 COPY application/src application/src
 COPY pipe/pipe-consumer-email-verify/src pipe/pipe-consumer-email-verify/src
+COPY clients/client-athssox/src clients/client-athssox/src
 COPY clients/client-bffssox/src clients/client-bffssox/src
 
 RUN --mount=type=secret,id=maven_settings,target=/root/.m2/settings.xml \

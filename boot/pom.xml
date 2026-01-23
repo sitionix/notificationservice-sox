@@ -30,6 +30,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>client-athssox</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>client-bffssox</artifactId>
             <version>${project.version}</version>
         </dependency>
