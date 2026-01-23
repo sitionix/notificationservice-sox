@@ -1,6 +1,7 @@
 package com.sitionix.ntfssox.it;
 
 import com.sitionix.forgeit.core.test.IntegrationTest;
+import com.sitionix.forgeit.wiremock.api.WireMockPathParams;
 import com.sitionix.forgeit.wiremock.api.WireMockQueryParams;
 import com.sitionix.forgeit.wiremock.internal.domain.RequestBuilder;
 import com.sitionix.ntfssox.it.endpoint.WireMockEndpoint;
@@ -27,10 +28,11 @@ class EmailVerifyFlowIT {
         final UUID pepperId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
         final RequestBuilder<?, ?> issueLinkRequest = this.forgeIt.wiremock()
-                .createMapping(WireMockEndpoint.issueEmailVerificationLink(tokenId))
-                .urlWithQueryParam(WireMockQueryParams.create().add("pepper", equalTo(pepperId.toString())))
+                .createMapping(WireMockEndpoint.issueEmailVerificationLink())
                 .responseBody("issueEmailVerificationLinkResponse.json")
                 .responseStatus(HttpStatus.OK)
+                .pathPattern(WireMockPathParams.create().add("id", equalTo(tokenId.toString())))
+                .urlWithQueryParam(WireMockQueryParams.create().add("pepper", equalTo(pepperId.toString())))
                 .create();
 
         final RequestBuilder<?, ?> requestBuilder = this.forgeIt.wiremock()

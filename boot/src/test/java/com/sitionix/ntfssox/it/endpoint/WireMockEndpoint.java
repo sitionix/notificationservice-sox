@@ -12,9 +12,9 @@ public final class WireMockEndpoint {
     private WireMockEndpoint() {
     }
 
-    public static Endpoint<Void, IssueEmailVerificationLinkResponse> issueEmailVerificationLink(final UUID tokenId) {
+    public static Endpoint<Void, IssueEmailVerificationLinkResponse> issueEmailVerificationLink() {
         return Endpoint.createContract(
-                "/authsox/api/v1/auth/emailVerificationTokens/" + tokenId + ":issueLink",
+                "/authsox/api/v1/auth/emailVerificationTokens/{id}:issueLink",
                 HttpMethod.GET,
                 Void.class,
                 IssueEmailVerificationLinkResponse.class
