@@ -3,20 +3,29 @@ package com.sitionix.ntfssox.client.mapper;
 import com.app_afesox.bffssox.client.dto.EmailVerificationDTO;
 import com.sitionix.ntfssox.domain.model.EmailVerifyPayload;
 import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@ExtendWith(MockitoExtension.class)
 class EmailVerifyClientMapperTest {
 
-    private final EmailVerifyClientMapper mapper = Mappers.getMapper(EmailVerifyClientMapper.class);
+    private EmailVerifyClientMapper mapper;
+
+    @BeforeEach
+    void setUp() {
+        this.mapper = new EmailVerifyClientMapperImpl();
+    }
 
     @Test
     void asEmailVerificationDto_nullPayloadAndUrl_returnsNull() {
-        final EmailVerificationDTO dto = this.mapper.asEmailVerificationDto((EmailVerifyPayload) null, null);
+        final EmailVerificationDTO dto = this.mapper.asEmailVerificationDto(null, null);
 
         assertNull(dto);
     }
