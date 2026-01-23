@@ -67,6 +67,10 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>client-bffssox</artifactId>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>client-athssox</artifactId>
+            </dependency>
 
             <!-- DEPENDENCY -->
             <dependency>

@@ -16,7 +16,7 @@
         <dependency>
             <groupId>com.afesox</groupId>
             <artifactId>app-afesox-athssox-event-emailverify-consumer-stable</artifactId>
-            <version>0.0.4</version>
+            <version>0.0.6</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
