@@ -1,16 +1,19 @@
 package com.sitionix.ntfssox.it;
 
 import com.sitionix.forgeit.core.test.IntegrationTest;
+import com.sitionix.forgeit.wiremock.api.WireMockPathParams;
+import com.sitionix.forgeit.wiremock.api.WireMockQueryParams;
 import com.sitionix.forgeit.wiremock.internal.domain.RequestBuilder;
 import com.sitionix.ntfssox.it.endpoint.WireMockEndpoint;
 import com.sitionix.ntfssox.it.kafka.EmailVerifyKafkaContracts;
-import com.sitionix.forgeit.wiremock.api.WireMockQueryParams;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import java.util.UUID;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 
 @IntegrationTest
 class EmailVerifyFlowIT {
@@ -25,8 +28,9 @@ class EmailVerifyFlowIT {
         final UUID pepperId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
         final RequestBuilder<?, ?> issueLinkRequest = this.forgeIt.wiremock()
-                .createMapping(WireMockEndpoint.issueEmailVerificationLink(tokenId))
-                .urlWithQueryParam(WireMockQueryParams.create().add("pepper", pepperId))
+                .createMapping(WireMockEndpoint.issueEmailVerificationLink())
+                .pathPattern(WireMockPathParams.create().add("tokenId", tokenId))
+                .urlWithQueryParam(WireMockQueryParams.create().add("pepper", equalTo(pepperId.toString())))
                 .responseBody("issueEmailVerificationLinkResponse.json")
                 .responseStatus(HttpStatus.OK)
                 .create();
