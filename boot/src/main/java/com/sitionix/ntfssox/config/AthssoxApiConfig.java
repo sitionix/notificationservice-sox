@@ -42,12 +42,12 @@ public class AthssoxApiConfig {
         return new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
     }
 
-    @Bean
+    @Bean("athssoxAuthApi")
     public AuthApi authApi(@Qualifier("athssoxClient") final ApiClient apiClient) {
         return new AuthApi(apiClient);
     }
 
-    @Bean
+    @Bean("athssoxUserApi")
     public UserApi userApi(@Qualifier("athssoxClient") final ApiClient apiClient) {
         return new UserApi(apiClient);
     }

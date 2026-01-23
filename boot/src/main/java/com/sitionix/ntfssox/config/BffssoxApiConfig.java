@@ -42,12 +42,12 @@ public class BffssoxApiConfig {
         return new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
     }
 
-    @Bean
+    @Bean("bffssoxAuthApi")
     public AuthApi authApi(@Qualifier("bffssoxClient") final ApiClient apiClient) {
         return new AuthApi(apiClient);
     }
 
-    @Bean
+    @Bean("bffssoxUserApi")
     public UserApi userApi(@Qualifier("bffssoxClient") final ApiClient apiClient) {
         return new UserApi(apiClient);
     }
