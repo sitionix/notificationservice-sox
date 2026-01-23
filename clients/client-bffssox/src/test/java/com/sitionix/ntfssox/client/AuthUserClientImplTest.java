@@ -6,9 +6,9 @@ import com.sitionix.ntfssox.client.mapper.EmailVerifyClientMapper;
 import com.sitionix.ntfssox.domain.client.EmailVerificationLinkClient;
 import com.sitionix.ntfssox.domain.model.EmailVerifyPayload;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -30,8 +30,12 @@ class AuthUserClientImplTest {
     @Mock
     private EmailVerificationLinkClient emailVerificationLinkClient;
 
-    @InjectMocks
     private AuthUserClientImpl subject;
+
+    @BeforeEach
+    void setUp() {
+        this.subject = new AuthUserClientImpl(this.authApi, this.emailVerifyClientMapper, this.emailVerificationLinkClient);
+    }
 
     @Test
     void verifyEmail_nullPayload_noInteractions() {

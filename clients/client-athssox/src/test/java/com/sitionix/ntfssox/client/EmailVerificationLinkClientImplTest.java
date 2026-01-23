@@ -4,9 +4,9 @@ import com.app_afesox.athssox.client.api.AuthApi;
 import com.app_afesox.athssox.client.dto.IssueEmailVerificationLinkResponse;
 import java.net.URI;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -22,8 +22,12 @@ class EmailVerificationLinkClientImplTest {
     @Mock
     private AuthApi authApi;
 
-    @InjectMocks
     private EmailVerificationLinkClientImpl subject;
+
+    @BeforeEach
+    void setUp() {
+        this.subject = new EmailVerificationLinkClientImpl(this.authApi);
+    }
 
     @Test
     void issueEmailVerificationLink_nullTokenId_returnsNull() {
