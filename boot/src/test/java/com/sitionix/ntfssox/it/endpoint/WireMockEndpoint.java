@@ -23,7 +23,7 @@ public final class WireMockEndpoint {
 
     public static Endpoint<EmailVerificationDTO, EmailVerificationResponseDTO> verifyEmail() {
         return Endpoint.createContract(
-                "/authsox/api/v1/auth/email/verify",
+                "/api/v1/auth/email/verify",
                 HttpMethod.POST,
                 EmailVerificationDTO.class,
                 EmailVerificationResponseDTO.class

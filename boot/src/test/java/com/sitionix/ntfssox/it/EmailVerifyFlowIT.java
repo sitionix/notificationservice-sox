@@ -19,10 +19,10 @@ class EmailVerifyFlowIT {
     private NotificationForgeItSupport forgeIt;
 
     @Test
-    @DisplayName("Given email verify event When consumed Then authsox client hits WireMock")
-    void givenEmailVerifyEvent_whenConsumed_thenAuthsoxClientHitsWireMock() {
-        final UUID tokenId = UUID.fromString("11111111-2222-3333-4444-555555555555");
-        final UUID pepperId = UUID.fromString("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+    @DisplayName("Given email verify event When consumed Then authsox link + bffssox verify hit WireMock")
+    void givenEmailVerifyEvent_whenConsumed_thenAuthsoxLinkAndBffssoxVerifyHitWireMock() {
+        final UUID tokenId = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        final UUID pepperId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
         final RequestBuilder<?, ?> issueLinkRequest = this.forgeIt.wiremock()
                 .createMapping(WireMockEndpoint.issueEmailVerificationLink(tokenId))
