@@ -2,7 +2,7 @@ package com.sitionix.ntfssox.client.mapper;
 
 import com.app_afesox.bffssox.client.dto.EmailVerificationDTO;
 import com.sitionix.ntfssox.domain.config.MapstructModel;
-import com.sitionix.ntfssox.domain.model.EmailVerifyPayload;
+import com.sitionix.ntfssox.domain.model.Notification;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -14,25 +14,10 @@ public interface EmailVerifyClientMapper {
 
     @Mapping(target = "token", expression = "java(extractToken(payload, verifyUrl))")
     @Mapping(target = "siteId", source = "payload.meta.siteId")
-    EmailVerificationDTO asEmailVerificationDto(EmailVerifyPayload payload, String verifyUrl);
+    EmailVerificationDTO asEmailVerificationDto(Notification payload, String verifyUrl);
 
-    default EmailVerificationDTO asEmailVerificationDto(final EmailVerifyPayload payload) {
-        return asEmailVerificationDto(payload, null);
-    }
-
-    default String extractToken(final EmailVerifyPayload payload, final String verifyUrl) {
-        final String resolvedUrl = resolveVerifyUrl(payload, verifyUrl);
-        return extractQueryParam(resolvedUrl, "token");
-    }
-
-    private static String resolveVerifyUrl(final EmailVerifyPayload payload, final String verifyUrl) {
-        if (verifyUrl != null && !verifyUrl.isBlank()) {
-            return verifyUrl;
-        }
-        if (payload == null || payload.getParams() == null) {
-            return null;
-        }
-        return payload.getParams().getVerifyUrl();
+    default String extractToken(final Notification payload, final String verifyUrl) {
+        return extractQueryParam(verifyUrl, "token");
     }
 
     private static String extractQueryParam(final String verifyUrl, final String name) {

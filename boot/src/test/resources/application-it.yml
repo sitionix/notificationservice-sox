@@ -6,3 +6,12 @@ api:
         base-path: ${forge-it.wiremock.base-url:http://localhost:8080}/bffssox
       athssox:
         base-path: ${forge-it.wiremock.base-url:http://localhost:8080}/authsox
+notification:
+  messages:
+    email-verification:
+      allowedChannels: [ email ]
+      delivery:
+        email:
+          mode: BYPASS
+          link:
+            url: https://app.sitionix.com/auth/email/verify

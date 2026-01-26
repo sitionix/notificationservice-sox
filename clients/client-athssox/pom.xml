@@ -12,7 +12,7 @@
 
     <artifactId>client-athssox</artifactId>
     <properties>
-        <athssox.api.version>0.0.22</athssox.api.version>
+        <athssox.api.version>0.0.23</athssox.api.version>
     </properties>
     <dependencies>
         <!-- MODULE -->
