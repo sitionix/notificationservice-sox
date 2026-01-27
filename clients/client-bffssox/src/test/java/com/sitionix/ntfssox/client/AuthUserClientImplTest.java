@@ -17,10 +17,10 @@ class AuthUserClientImplTest {
 
     private AuthUserClientImpl subject;
 
-    @BeforeEach
-    void setUp() {
-        this.subject = new AuthUserClientImpl(this.authApi);
-    }
+//    @BeforeEach
+//    void setUp() {
+//        this.subject = new AuthUserClientImpl(this.authApi);
+//    }
 //
 //    @Test
 //    void verifyEmail_missingMeta_noInteractions() {

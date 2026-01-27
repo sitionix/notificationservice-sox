@@ -1,14 +1,12 @@
 package com.sitionix.ntfssox.domain.model;
 
-import com.sitionix.ntfssox.domain.handler.NotificationHandler;
+import java.util.Arrays;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import java.util.Arrays;
-
 @RequiredArgsConstructor
-public enum NotificationTemplate implements NotificationHandler {
+public enum NotificationTemplate implements NotificationHandler<Object> {
 
     EMAIL_VERIFY(1L, "email-verification");
 
@@ -19,10 +17,18 @@ public enum NotificationTemplate implements NotificationHandler {
     private final String bindingKey;
 
     @Setter
-    private NotificationHandler handler;
+    private NotificationHandler<?> handler;
 
     @Override
-    public <C> void send(Notification<C> notification) {
-        this.handler.send(notification);
+    @SuppressWarnings("unchecked")
+    public void send(final Notification<? extends Object> notification) {
+        ((NotificationHandler<Object>) this.handler).send(notification);
+    }
+
+    public static NotificationTemplate byBindingKey(final String bindingKey) {
+        return Arrays.stream(values())
+                .filter(template -> template.bindingKey.equals(bindingKey))
+                .findFirst()
+                .orElse(null);
     }
 }
