@@ -8,6 +8,8 @@ import com.sitionix.ntfssox.it.endpoint.WireMockEndpoint;
 import com.sitionix.ntfssox.it.kafka.EmailVerifyKafkaContracts;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
@@ -16,6 +18,7 @@ import java.util.UUID;
 import static com.sitionix.forgeit.wiremock.api.Parameter.equalTo;
 
 @IntegrationTest
+@Execution(ExecutionMode.SAME_THREAD)
 class EmailVerifyFlowIT {
 
     @Autowired
@@ -31,7 +34,8 @@ class EmailVerifyFlowIT {
                 .responseStatus(HttpStatus.OK)
                 .pathPattern(WireMockPathParams.create().add("id", equalTo("1bc623d6-1242-4e37-b576-eb73ed9c88f6")))
                 .urlWithQueryParam(WireMockQueryParams.create().add("pepper", equalTo("81aaab7e-f6e5-4ff7-bb06-39d5d857de62")))
-                .create();
+                .create()
+                .atLeastTimes(2);
 
         //when
         this.forgeIt.kafka()
@@ -53,14 +57,16 @@ class EmailVerifyFlowIT {
                 .responseStatus(HttpStatus.OK)
                 .pathPattern(WireMockPathParams.create().add("id", equalTo(tokenId.toString())))
                 .urlWithQueryParam(WireMockQueryParams.create().add("pepper", equalTo(pepperId.toString())))
-                .create();
+                .create()
+                .atLeastTimes(2);
 
         final RequestBuilder<?, ?> requestBuilder = this.forgeIt.wiremock()
                 .createMapping(WireMockEndpoint.verifyEmail())
                 .responseBody("emailVerifyResponse.json")
                 .responseStatus(HttpStatus.OK)
                 .plainUrl()
-                .create();
+                .create()
+                .atLeastTimes(2);
 
         this.forgeIt.kafka()
                 .publish(EmailVerifyKafkaContracts.EMAIL_VERIFY_INPUT)

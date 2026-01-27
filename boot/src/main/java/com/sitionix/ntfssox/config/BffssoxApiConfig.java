@@ -38,7 +38,11 @@ public class BffssoxApiConfig {
     @Bean("bffssoxRestTemplate")
     public RestTemplate bffssoxRestTemplate() {
         final HttpComponentsClientHttpRequestFactory requestFactory =
-                new HttpComponentsClientHttpRequestFactory(HttpClients.createDefault());
+                new HttpComponentsClientHttpRequestFactory(
+                        HttpClients.custom()
+                                .disableAutomaticRetries()
+                                .build()
+                );
         return new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
     }
 

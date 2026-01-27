@@ -20,7 +20,6 @@ public interface NotificationProps {
     }
 
     interface EmailDelivery {
-        String getMode();
         Link getLink();
     }
 
