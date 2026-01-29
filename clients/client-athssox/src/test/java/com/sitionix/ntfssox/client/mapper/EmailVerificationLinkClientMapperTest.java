@@ -13,16 +13,16 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class EmailVerificationLinkClientMapperTest {
 
-    private EmailVerificationLinkClientMapper mapper;
+    private EmailVerificationLinkClientMapper subject;
 
     @BeforeEach
     void setUp() {
-        this.mapper = new EmailVerificationLinkClientMapperImpl();
+        this.subject = new EmailVerificationLinkClientMapperImpl();
     }
 
     @Test
     void asEmailVerificationLink_nullDto_returnsNull() {
-        final EmailVerificationLink result = this.mapper.asEmailVerificationLink(null);
+        final EmailVerificationLink result = this.subject.asEmailVerificationLink(null);
 
         assertNull(result);
     }
@@ -38,7 +38,7 @@ class EmailVerificationLinkClientMapperTest {
                 .siteId(siteId)
                 .expiresAt(expiresAt);
 
-        final EmailVerificationLink result = this.mapper.asEmailVerificationLink(dto);
+        final EmailVerificationLink result = this.subject.asEmailVerificationLink(dto);
 
         assertEquals("token-1", result.getToken());
         assertEquals(tokenId, result.getTokenId());
@@ -51,7 +51,7 @@ class EmailVerificationLinkClientMapperTest {
         final IssueEmailVerificationLinkResponseDTO dto = new IssueEmailVerificationLinkResponseDTO()
                 .token("token-1");
 
-        final EmailVerificationLink result = this.mapper.asEmailVerificationLink(dto);
+        final EmailVerificationLink result = this.subject.asEmailVerificationLink(dto);
 
         assertNull(result.getExpiresAt());
     }

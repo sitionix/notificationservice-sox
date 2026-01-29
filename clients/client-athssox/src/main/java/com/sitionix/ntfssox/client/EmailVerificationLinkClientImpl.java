@@ -5,11 +5,10 @@ import com.app_afesox.athssox.client.dto.IssueEmailVerificationLinkResponseDTO;
 import com.sitionix.ntfssox.client.mapper.EmailVerificationLinkClientMapper;
 import com.sitionix.ntfssox.domain.client.EmailVerificationLinkClient;
 import com.sitionix.ntfssox.domain.model.EmailVerificationLink;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Slf4j
 @Service

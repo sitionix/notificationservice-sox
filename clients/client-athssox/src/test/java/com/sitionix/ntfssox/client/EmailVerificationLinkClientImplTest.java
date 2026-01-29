@@ -5,6 +5,7 @@ import com.app_afesox.athssox.client.dto.IssueEmailVerificationLinkResponseDTO;
 import com.sitionix.ntfssox.client.mapper.EmailVerificationLinkClientMapper;
 import com.sitionix.ntfssox.domain.client.EmailVerificationLinkClient;
 import com.sitionix.ntfssox.domain.model.EmailVerificationLink;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,13 +13,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.UUID;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)

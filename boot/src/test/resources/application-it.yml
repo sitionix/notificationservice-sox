@@ -1,4 +1,9 @@
 environment: it
+forge-it:
+  modules:
+    kafka:
+      consumer:
+        auto-offset-reset: latest
 spring:
   kafka:
     consumer:
