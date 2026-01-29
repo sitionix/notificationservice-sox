@@ -15,8 +15,8 @@
     <dependencies>
         <dependency>
             <groupId>com.afesox</groupId>
-            <artifactId>app-afesox-ntfssox-event-notifications-consumer-sitionix-66-unstable</artifactId>
-            <version>0.0.1</version>
+            <artifactId>app-afesox-ntfssox-event-notifications-consumer-stable</artifactId>
+            <version>0.0.2</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
