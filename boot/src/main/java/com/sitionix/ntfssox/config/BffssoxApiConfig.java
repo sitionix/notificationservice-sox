@@ -4,7 +4,6 @@ import com.app_afesox.bffssox.client.api.AuthApi;
 import com.app_afesox.bffssox.client.api.UserApi;
 import com.app_afesox.bffssox.client.invoker.ApiClient;
 import lombok.Data;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -38,11 +37,7 @@ public class BffssoxApiConfig {
     @Bean("bffssoxRestTemplate")
     public RestTemplate bffssoxRestTemplate() {
         final HttpComponentsClientHttpRequestFactory requestFactory =
-                new HttpComponentsClientHttpRequestFactory(
-                        HttpClients.custom()
-                                .disableAutomaticRetries()
-                                .build()
-                );
+                new HttpComponentsClientHttpRequestFactory();
         return new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
     }
 
