@@ -1,9 +1,10 @@
 package com.sitionix.ntfssox.client;
 
 import com.app_afesox.athssox.client.api.AuthApi;
-import com.app_afesox.athssox.client.dto.IssueEmailVerificationLinkResponse;
+import com.app_afesox.athssox.client.dto.IssueEmailVerificationLinkResponseDTO;
+import com.sitionix.ntfssox.client.mapper.EmailVerificationLinkClientMapper;
 import com.sitionix.ntfssox.domain.client.EmailVerificationLinkClient;
-import java.net.URI;
+import com.sitionix.ntfssox.domain.model.EmailVerificationLink;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,19 +17,28 @@ public class EmailVerificationLinkClientImpl implements EmailVerificationLinkCli
 
     private final AuthApi authApi;
 
+    private final EmailVerificationLinkClientMapper clientMapper;
+
     @Override
-    public String issueEmailVerificationLink(final UUID tokenId, final UUID pepperId) {
+    public EmailVerificationLink issueEmailVerificationLink(final UUID tokenId, final UUID pepperId) {
         if (tokenId == null || pepperId == null) {
             log.warn("Email verification link request missing token identifiers tokenId={}, pepperId={}", tokenId, pepperId);
             return null;
         }
 
-        final IssueEmailVerificationLinkResponse response =
+        final IssueEmailVerificationLinkResponseDTO response =
                 this.authApi.issueEmailVerificationLink(tokenId, pepperId);
+
         if (response == null) {
+            log.warn("Email verification link response is null for tokenId={}, pepperId={}", tokenId, pepperId);
             return null;
         }
-        final URI verifyUrl = response.getVerifyUrl();
-        return verifyUrl != null ? verifyUrl.toString() : null;
+        if (response.getToken() == null || response.getToken().isBlank()) {
+            log.warn("Email verification link response missing token for tokenId={}, pepperId={}",
+                    tokenId, pepperId);
+            return null;
+        }
+
+        return this.clientMapper.asEmailVerificationLink(response);
     }
 }

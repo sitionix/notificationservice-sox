@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>pipe-consumer-email-verify</artifactId>
+            <artifactId>pipe-consumer-notification</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

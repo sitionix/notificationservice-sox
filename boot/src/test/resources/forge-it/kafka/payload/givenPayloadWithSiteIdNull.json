@@ -1,0 +1,17 @@
+{
+  "delivery": {
+    "channel": "EMAIL",
+    "to": "test4@gmail.com"
+  },
+  "template": "EMAIL_VERIFY",
+  "content": {
+    "verificationTokenId": "1bc623d6-1242-4e37-b576-eb73ed9c88f6",
+    "pepperId": "81aaab7e-f6e5-4ff7-bb06-39d5d857de62"
+  },
+  "meta": {
+    "userId": 5,
+    "siteId": null,
+    "traceId": null,
+    "requestedAt": "2026-01-24T08:19:24.840097168Z"
+  }
+}

@@ -1,8 +1,8 @@
 package com.sitionix.ntfssox.domain.usecase;
 
-import com.sitionix.ntfssox.domain.model.EmailVerifyPayload;
+import com.sitionix.ntfssox.domain.model.EmailVerificationLink;
 
 public interface VerifyEmail {
 
-    void execute(EmailVerifyPayload payload);
+    void execute(EmailVerificationLink emailVerification);
 }

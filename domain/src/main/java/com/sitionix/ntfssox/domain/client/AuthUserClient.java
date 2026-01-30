@@ -1,8 +1,8 @@
 package com.sitionix.ntfssox.domain.client;
 
-import com.sitionix.ntfssox.domain.model.EmailVerifyPayload;
+import com.sitionix.ntfssox.domain.model.EmailVerificationLink;
 
 public interface AuthUserClient {
 
-    void verifyEmail(EmailVerifyPayload payload);
+    void verifyEmail(EmailVerificationLink emailVerification);
 }

@@ -1,8 +1,9 @@
 package com.sitionix.ntfssox.domain.client;
 
+import com.sitionix.ntfssox.domain.model.EmailVerificationLink;
 import java.util.UUID;
 
 public interface EmailVerificationLinkClient {
 
-    String issueEmailVerificationLink(UUID tokenId, UUID pepperId);
+    EmailVerificationLink issueEmailVerificationLink(UUID tokenId, UUID pepperId);
 }

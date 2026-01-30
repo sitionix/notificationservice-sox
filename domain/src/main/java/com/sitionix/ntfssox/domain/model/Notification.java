@@ -1,9 +1,12 @@
 package com.sitionix.ntfssox.domain.model;
 
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
 
@@ -14,11 +17,13 @@ import java.util.UUID;
 @Builder
 @Jacksonized
 @EqualsAndHashCode
-public class EmailVerifyPayload {
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
+public class Notification<T> {
 
     private Delivery delivery;
     private NotificationTemplate template;
-    private Params params;
+    private T content;
     private Meta meta;
 
     @Data
@@ -30,16 +35,6 @@ public class EmailVerifyPayload {
 
         @ToString.Exclude
         private String to;
-    }
-
-    @Data
-    @Builder
-    @Jacksonized
-    @EqualsAndHashCode
-    public static class Params {
-        private String verifyUrl;
-        private UUID emailVerificationTokenId;
-        private UUID pepperId;
     }
 
     @Data

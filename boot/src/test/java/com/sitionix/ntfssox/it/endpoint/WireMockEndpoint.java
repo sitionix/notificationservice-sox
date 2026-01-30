@@ -2,22 +2,21 @@ package com.sitionix.ntfssox.it.endpoint;
 
 import com.app_afesox.athssox.client.dto.EmailVerificationDTO;
 import com.app_afesox.athssox.client.dto.EmailVerificationResponseDTO;
-import com.app_afesox.athssox.client.dto.IssueEmailVerificationLinkResponse;
+import com.app_afesox.athssox.client.dto.IssueEmailVerificationLinkResponseDTO;
 import com.sitionix.forgeit.domain.endpoint.Endpoint;
 import com.sitionix.forgeit.domain.endpoint.HttpMethod;
-import java.util.UUID;
 
 public final class WireMockEndpoint {
 
     private WireMockEndpoint() {
     }
 
-    public static Endpoint<Void, IssueEmailVerificationLinkResponse> issueEmailVerificationLink() {
+    public static Endpoint<Void, IssueEmailVerificationLinkResponseDTO> issueEmailVerificationLink() {
         return Endpoint.createContract(
                 "/authsox/api/v1/auth/emailVerificationTokens/{id}:issueLink",
                 HttpMethod.GET,
                 Void.class,
-                IssueEmailVerificationLinkResponse.class
+                IssueEmailVerificationLinkResponseDTO.class
         );
     }
 

@@ -6,20 +6,49 @@ import com.sitionix.forgeit.wiremock.api.WireMockQueryParams;
 import com.sitionix.forgeit.wiremock.internal.domain.RequestBuilder;
 import com.sitionix.ntfssox.it.endpoint.WireMockEndpoint;
 import com.sitionix.ntfssox.it.kafka.EmailVerifyKafkaContracts;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
-import java.util.UUID;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.sitionix.forgeit.wiremock.api.Parameter.equalTo;
 
 @IntegrationTest
 class EmailVerifyFlowIT {
 
     @Autowired
     private NotificationForgeItSupport forgeIt;
+
+    @Test
+    @DisplayName("given email verify event when consumed then verify email")
+    void givenEmailVerifyEvent_whenConsumed_thenVerifyEmail() {
+        //given
+        final RequestBuilder<?, ?> issueLinkRequest = this.forgeIt.wiremock()
+                .createMapping(WireMockEndpoint.issueEmailVerificationLink())
+                .responseBody("issueEmailVerificationLinkResponse.json")
+                .responseStatus(HttpStatus.OK)
+                .pathPattern(WireMockPathParams.create().add("id", equalTo("1bc623d6-1242-4e37-b576-eb73ed9c88f6")))
+                .urlWithQueryParam(WireMockQueryParams.create().add("pepper", equalTo("81aaab7e-f6e5-4ff7-bb06-39d5d857de62")))
+                .create();
+
+        final RequestBuilder<?, ?> verifyEmailRequest = this.forgeIt.wiremock()
+                .createMapping(WireMockEndpoint.verifyEmail())
+                .responseBody("emailVerifyResponse.json")
+                .responseStatus(HttpStatus.OK)
+                .plainUrl()
+                .create();
+
+        //when
+        this.forgeIt.kafka()
+                .publish(EmailVerifyKafkaContracts.EMAIL_VERIFY_INPUT)
+                .payload("givenPayloadWithSiteIdNull.json")
+                .sendAndVerify(p -> {
+                    issueLinkRequest.verify();
+                    verifyEmailRequest.verify();
+                });
+    }
+
 
     @Test
     @DisplayName("Given email verify event When consumed Then authsox link + bffssox verify hit WireMock")
