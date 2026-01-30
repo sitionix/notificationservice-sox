@@ -44,11 +44,13 @@ class NotificationTemplateInjectorTest {
     @Test
     void givenMatchingHandler_whenInjectHandlers_thenSetsTemplateHandler() {
         //given
-        final NotificationHandler<?> handler = getNotificationHandler();
+        final NotificationHandler<?> handler = this.getNotificationHandler();
         final Map<String, NotificationHandler<?>> handlers = Map.of("emailVerification", handler);
         final Notification<Object> notification = mock(Notification.class);
 
-        when(this.context.getBeansOfType(NotificationHandler.class)).thenReturn(handlers);
+        @SuppressWarnings("unchecked")
+        final Map<String, NotificationHandler> rawHandlers = (Map<String, NotificationHandler>) (Map<?, ?>) handlers;
+        when(this.context.getBeansOfType(NotificationHandler.class)).thenReturn(rawHandlers);
 
         //when
         this.subject.injectHandlers();
@@ -65,7 +67,9 @@ class NotificationTemplateInjectorTest {
         //given
         final Map<String, NotificationHandler<?>> handlers = Map.of();
 
-        when(this.context.getBeansOfType(NotificationHandler.class)).thenReturn(handlers);
+        @SuppressWarnings("unchecked")
+        final Map<String, NotificationHandler> rawHandlers = (Map<String, NotificationHandler>) (Map<?, ?>) handlers;
+        when(this.context.getBeansOfType(NotificationHandler.class)).thenReturn(rawHandlers);
 
         //when
         assertThatThrownBy(this.subject::injectHandlers)

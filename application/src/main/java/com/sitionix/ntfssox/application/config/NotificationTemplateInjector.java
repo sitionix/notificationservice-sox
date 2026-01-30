@@ -18,7 +18,9 @@ public class NotificationTemplateInjector {
 
     @PostConstruct
     public void injectHandlers() {
-        final Map<String, NotificationHandler<?>> handlers = this.context.getBeansOfType(NotificationHandler.class);
+        @SuppressWarnings("unchecked")
+        final Map<String, ? extends NotificationHandler<?>> handlers =
+                (Map<String, ? extends NotificationHandler<?>>) (Map<?, ?>) this.context.getBeansOfType(NotificationHandler.class);
 
         Arrays.stream(NotificationTemplate.values())
                 .forEach(template -> {

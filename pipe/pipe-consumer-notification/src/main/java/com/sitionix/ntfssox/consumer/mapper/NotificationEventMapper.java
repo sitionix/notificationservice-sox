@@ -8,6 +8,7 @@ import com.sitionix.ntfssox.domain.model.Notification;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = MapstructModel.COMPONENT_MODEL,
         uses = {
@@ -16,9 +17,10 @@ import org.mapstruct.Mapping;
         injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class NotificationEventMapper {
 
-    protected final NotificationMapper contentMapper;
+    protected NotificationMapper contentMapper;
 
-    protected NotificationEventMapper(final NotificationMapper contentMapper) {
+    @Autowired
+    void setContentMapper(final NotificationMapper contentMapper) {
         this.contentMapper = contentMapper;
     }
 

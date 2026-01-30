@@ -69,7 +69,7 @@ public class NotificationHandlerBeanFactoryProcessor
 
     private MessageProperties bindMessageProperties(final String beanName) {
         return Binder.get(this.environment)
-                .bind("notification.messages." + beanName, Bindable.of(MessageProperties.class))
+                .bind("notification.messages." + toPropertyKey(beanName), Bindable.of(MessageProperties.class))
                 .orElse(null);
     }
 
@@ -95,5 +95,18 @@ public class NotificationHandlerBeanFactoryProcessor
             }
         }
         return false;
+    }
+
+    private String toPropertyKey(final String beanName) {
+        final StringBuilder key = new StringBuilder();
+        for (int i = 0; i < beanName.length(); i++) {
+            final char ch = beanName.charAt(i);
+            if (Character.isUpperCase(ch)) {
+                key.append('-').append(Character.toLowerCase(ch));
+            } else {
+                key.append(ch);
+            }
+        }
+        return key.toString();
     }
 }

@@ -20,8 +20,8 @@ class EmailVerifyContentEventMapperTest {
     @Test
     void givenEmailVerificationContent_whenAsNotification_thenMapsToDomain() {
         //given
-        final EmailVerificationContentDTO event = getEmailVerificationContentDto();
-        final EmailVerifyContent expected = getEmailVerifyContent();
+        final EmailVerificationContentDTO event = this.getEmailVerificationContentDto();
+        final EmailVerifyContent expected = this.getEmailVerifyContent();
 
         //when
         final EmailVerifyContent actual = this.subject.asNotification(event);

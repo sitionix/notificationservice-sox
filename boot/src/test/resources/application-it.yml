@@ -8,7 +8,7 @@ api:
         base-path: ${forge-it.wiremock.base-url:http://localhost:8080}/authsox
 notification:
   messages:
-    emailVerification:
+    email-verification:
       allowedChannels: [ email ]
       delivery:
         email:

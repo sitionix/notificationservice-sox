@@ -4,31 +4,41 @@ import com.sitionix.ntfssox.domain.model.AbstractNotificationHandler;
 import com.sitionix.ntfssox.domain.model.MessageProperties;
 import com.sitionix.ntfssox.domain.model.Notification;
 import com.sitionix.ntfssox.domain.model.VerifyChannel;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
-import org.springframework.core.env.Environment;
 import org.springframework.mock.env.MockEnvironment;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class NotificationHandlerBeanFactoryProcessorTest {
+
+    private NotificationHandlerBeanFactoryProcessor subject;
+
+    @BeforeEach
+    void setUp() {
+        this.subject = new NotificationHandlerBeanFactoryProcessor();
+    }
 
     @Test
     void givenRegistryWithValidHandler_whenPostProcess_thenAddsConstructorArg() {
         //given
-        final DefaultListableBeanFactory registry = getRegistry();
-        final GenericBeanDefinition definition = getBeanDefinition(TestNotificationHandler.class);
+        final DefaultListableBeanFactory registry = this.getRegistry();
+        final GenericBeanDefinition definition = this.getBeanDefinition(TestNotificationHandler.class);
         registry.registerBeanDefinition("emailVerification", definition);
 
-        final MockEnvironment environment = getEnvironmentWithMessageProperties();
-        final NotificationHandlerBeanFactoryProcessor subject = getProcessor(environment);
+        final MockEnvironment environment = this.getEnvironmentWithMessageProperties();
+        this.subject.setEnvironment(environment);
 
         //when
-        subject.postProcessBeanDefinitionRegistry(registry);
+        this.subject.postProcessBeanDefinitionRegistry(registry);
 
         //then
         assertThat(definition.getConstructorArgumentValues().getArgumentCount()).isEqualTo(1);
@@ -38,21 +48,21 @@ class NotificationHandlerBeanFactoryProcessorTest {
                 .getValue();
         assertThat(argumentValue).isInstanceOf(MessageProperties.class);
         final MessageProperties props = (MessageProperties) argumentValue;
-        assertThat(props).isEqualTo(getMessageProperties());
+        assertThat(props).isEqualTo(this.getMessageProperties());
     }
 
     @Test
     void givenRegistryWithValidHandlerAndMissingMessageConfig_whenPostProcess_thenThrows() {
         //given
-        final DefaultListableBeanFactory registry = getRegistry();
-        final GenericBeanDefinition definition = getBeanDefinition(TestNotificationHandler.class);
+        final DefaultListableBeanFactory registry = this.getRegistry();
+        final GenericBeanDefinition definition = this.getBeanDefinition(TestNotificationHandler.class);
         registry.registerBeanDefinition("emailVerification", definition);
 
-        final MockEnvironment environment = getEnvironment();
-        final NotificationHandlerBeanFactoryProcessor subject = getProcessor(environment);
+        final MockEnvironment environment = this.getEnvironment();
+        this.subject.setEnvironment(environment);
 
         //when
-        assertThatThrownBy(() -> subject.postProcessBeanDefinitionRegistry(registry))
+        assertThatThrownBy(() -> this.subject.postProcessBeanDefinitionRegistry(registry))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("No message config for handler: emailVerification");
     }
@@ -60,14 +70,14 @@ class NotificationHandlerBeanFactoryProcessorTest {
     @Test
     void givenRegistryWithHandlerWithoutMessagePropertiesConstructor_whenPostProcess_thenThrows() {
         //given
-        final DefaultListableBeanFactory registry = getRegistry();
-        final GenericBeanDefinition definition = getBeanDefinition(NoMessagePropertiesConstructorHandler.class);
+        final DefaultListableBeanFactory registry = this.getRegistry();
+        final GenericBeanDefinition definition = this.getBeanDefinition(NoMessagePropertiesConstructorHandler.class);
         registry.registerBeanDefinition("emailVerification", definition);
 
-        final NotificationHandlerBeanFactoryProcessor subject = getProcessor(getEnvironment());
+        this.subject.setEnvironment(this.getEnvironment());
 
         //when
-        assertThatThrownBy(() -> subject.postProcessBeanDefinitionRegistry(registry))
+        assertThatThrownBy(() -> this.subject.postProcessBeanDefinitionRegistry(registry))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("NotificationHandler " + NoMessagePropertiesConstructorHandler.class.getName()
                         + " must declare a constructor with MessageProperties argument");
@@ -76,14 +86,14 @@ class NotificationHandlerBeanFactoryProcessorTest {
     @Test
     void givenRegistryWithUnknownTemplateBeanName_whenPostProcess_thenThrows() {
         //given
-        final DefaultListableBeanFactory registry = getRegistry();
-        final GenericBeanDefinition definition = getBeanDefinition(TestNotificationHandler.class);
+        final DefaultListableBeanFactory registry = this.getRegistry();
+        final GenericBeanDefinition definition = this.getBeanDefinition(TestNotificationHandler.class);
         registry.registerBeanDefinition("unknown-template", definition);
 
-        final NotificationHandlerBeanFactoryProcessor subject = getProcessor(getEnvironment());
+        this.subject.setEnvironment(this.getEnvironment());
 
         //when
-        assertThatThrownBy(() -> subject.postProcessBeanDefinitionRegistry(registry))
+        assertThatThrownBy(() -> this.subject.postProcessBeanDefinitionRegistry(registry))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("No NotificationTemplate for handler bean: unknown-template");
     }
@@ -91,19 +101,19 @@ class NotificationHandlerBeanFactoryProcessorTest {
     @Test
     void givenRegistryWithNonHandlerAndInvalidClasses_whenPostProcess_thenSkips() {
         //given
-        final DefaultListableBeanFactory registry = getRegistry();
-        final GenericBeanDefinition noClassDefinition = getEmptyBeanDefinition();
-        final GenericBeanDefinition invalidClassDefinition = getBeanDefinition("com.sitionix.NotExisting");
-        final GenericBeanDefinition nonHandlerDefinition = getBeanDefinition(NonHandlerBean.class);
+        final DefaultListableBeanFactory registry = this.getRegistry();
+        final GenericBeanDefinition noClassDefinition = this.getEmptyBeanDefinition();
+        final GenericBeanDefinition invalidClassDefinition = this.getBeanDefinition("com.sitionix.NotExisting");
+        final GenericBeanDefinition nonHandlerDefinition = this.getBeanDefinition(NonHandlerBean.class);
 
         registry.registerBeanDefinition("no-class-name", noClassDefinition);
         registry.registerBeanDefinition("invalid-class", invalidClassDefinition);
         registry.registerBeanDefinition("non-handler", nonHandlerDefinition);
 
-        final NotificationHandlerBeanFactoryProcessor subject = getProcessor(getEnvironment());
+        this.subject.setEnvironment(this.getEnvironment());
 
         //when
-        subject.postProcessBeanDefinitionRegistry(registry);
+        this.subject.postProcessBeanDefinitionRegistry(registry);
 
         //then
         assertThat(nonHandlerDefinition.getConstructorArgumentValues().getArgumentCount()).isZero();
@@ -131,17 +141,11 @@ class NotificationHandlerBeanFactoryProcessorTest {
 
     private MockEnvironment getEnvironmentWithMessageProperties() {
         return new MockEnvironment()
-                .withProperty("notification.messages.emailVerification.allowed-channels[0]", "EMAIL");
+                .withProperty("notification.messages.email-verification.allowed-channels[0]", "EMAIL");
     }
 
     private MockEnvironment getEnvironment() {
         return new MockEnvironment();
-    }
-
-    private NotificationHandlerBeanFactoryProcessor getProcessor(final Environment environment) {
-        final NotificationHandlerBeanFactoryProcessor processor = new NotificationHandlerBeanFactoryProcessor();
-        processor.setEnvironment(environment);
-        return processor;
     }
 
     private MessageProperties getMessageProperties() {

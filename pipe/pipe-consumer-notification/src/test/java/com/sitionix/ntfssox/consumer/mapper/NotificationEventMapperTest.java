@@ -38,7 +38,8 @@ class NotificationEventMapperTest {
 
     @BeforeEach
     void setUp() {
-        this.subject = new NotificationEventMapperImpl(this.notificationTemplateMapper, this.contentMapper);
+        this.subject = new NotificationEventMapperImpl(this.notificationTemplateMapper);
+        this.subject.setContentMapper(this.contentMapper);
     }
 
     @AfterEach
@@ -51,13 +52,13 @@ class NotificationEventMapperTest {
         //given
         final Object content = mock(Object.class);
         final Object mappedContent = mock(Object.class);
-        final NotificationEvent event = getNotificationEvent(content);
+        final NotificationEvent event = this.getNotificationEvent(content);
         final NotificationTemplate template = NotificationTemplate.EMAIL_VERIFY;
 
         when(this.notificationTemplateMapper.asTemplate(NotificationTemplateDTO.EMAIL_VERIFY)).thenReturn(template);
         when(this.contentMapper.asNotification(content)).thenReturn(mappedContent);
 
-        final Notification<Object> expected = getExpectedNotification(mappedContent, template);
+        final Notification<Object> expected = this.getExpectedNotification(mappedContent, template);
 
         //when
         final Notification<Object> actual = this.subject.asNotification(event);
@@ -83,10 +84,10 @@ class NotificationEventMapperTest {
 
     private NotificationEvent getNotificationEvent(final Object content) {
         return new NotificationEvent(
-                getDeliveryDto(),
+                this.getDeliveryDto(),
                 NotificationTemplateDTO.EMAIL_VERIFY,
                 content,
-                getMetaDto()
+                this.getMetaDto()
         );
     }
 
@@ -105,10 +106,10 @@ class NotificationEventMapperTest {
 
     private Notification<Object> getExpectedNotification(final Object mappedContent, final NotificationTemplate template) {
         return Notification.builder()
-                .delivery(getExpectedDelivery())
+                .delivery(this.getExpectedDelivery())
                 .template(template)
                 .content(mappedContent)
-                .meta(getExpectedMeta())
+                .meta(this.getExpectedMeta())
                 .build();
     }
 
