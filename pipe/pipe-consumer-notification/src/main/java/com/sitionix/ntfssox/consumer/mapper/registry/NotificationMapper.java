@@ -23,12 +23,12 @@ public class NotificationMapper {
                 ));
     }
 
-    public <TO, FROM> TO asNotification(final FROM event) {
+    public <T, E> T asNotification(final E event) {
         if (event == null) {
             return null;
         }
 
-        final EventContentMapper<TO, FROM> mapper = findMapper(event.getClass());
+        final EventContentMapper<T, E> mapper = findMapper(event.getClass());
         if (mapper == null) {
             throw new IllegalArgumentException("No content mapper found for type: " + event.getClass().getName());
         }
@@ -37,14 +37,14 @@ public class NotificationMapper {
     }
 
     @SuppressWarnings("unchecked")
-    private <TO, FROM> EventContentMapper<TO, FROM> findMapper(final Class<?> type) {
-        final EventContentMapper<TO, FROM> direct =
-                (EventContentMapper<TO, FROM>) mappers.get(type);
+    private <T, E> EventContentMapper<T, E> findMapper(final Class<?> type) {
+        final EventContentMapper<T, E> direct =
+                (EventContentMapper<T, E>) mappers.get(type);
         if (direct != null) {
             return direct;
         }
 
-        return (EventContentMapper<TO, FROM>) mappers.entrySet().stream()
+        return (EventContentMapper<T, E>) mappers.entrySet().stream()
                 .filter(entry -> entry.getKey().isAssignableFrom(type))
                 .map(Map.Entry::getValue)
                 .findFirst()

@@ -1,8 +1,8 @@
 package com.sitionix.ntfssox.consumer.mapper;
 
-public interface EventContentMapper<TO, FROM> {
+public interface EventContentMapper<T, E> {
 
-    Class<FROM> supports();
+    Class<E> supports();
 
-    TO asNotification(FROM event);
+    T asNotification(E event);
 }

@@ -30,19 +30,8 @@ public class NotificationHandlerBeanFactoryProcessor
     public void postProcessBeanDefinitionRegistry(final BeanDefinitionRegistry registry) throws BeansException {
         for (String beanName : registry.getBeanDefinitionNames()) {
             final BeanDefinition definition = registry.getBeanDefinition(beanName);
-            final String className = definition.getBeanClassName();
-            if (className == null) {
-                continue;
-            }
-
-            final Class<?> clazz;
-            try {
-                clazz = Class.forName(className);
-            } catch (ClassNotFoundException ignored) {
-                continue;
-            }
-
-            if (!NotificationHandler.class.isAssignableFrom(clazz)) {
+            final Class<?> clazz = getBeanClass(definition);
+            if (clazz == null || !NotificationHandler.class.isAssignableFrom(clazz)) {
                 continue;
             }
 
@@ -75,12 +64,26 @@ public class NotificationHandlerBeanFactoryProcessor
 
     @Override
     public void postProcessBeanFactory(final org.springframework.beans.factory.config.ConfigurableListableBeanFactory beanFactory) {
+        // no-op: validation and constructor wiring happen in postProcessBeanDefinitionRegistry
     }
 
     private MessageProperties bindMessageProperties(final String beanName) {
         return Binder.get(this.environment)
                 .bind("notification.messages." + beanName, Bindable.of(MessageProperties.class))
                 .orElse(null);
+    }
+
+    private Class<?> getBeanClass(final BeanDefinition definition) {
+        final String className = definition.getBeanClassName();
+        if (className == null) {
+            return null;
+        }
+
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException ignored) {
+            return null;
+        }
     }
 
     private boolean hasMessagePropertiesConstructor(final Class<?> clazz) {

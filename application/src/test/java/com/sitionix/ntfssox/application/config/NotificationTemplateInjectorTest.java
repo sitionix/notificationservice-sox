@@ -45,7 +45,7 @@ class NotificationTemplateInjectorTest {
     void givenMatchingHandler_whenInjectHandlers_thenSetsTemplateHandler() {
         //given
         final NotificationHandler<?> handler = getNotificationHandler();
-        final Map<String, NotificationHandler> handlers = Map.of("email-verification", handler);
+        final Map<String, NotificationHandler<?>> handlers = Map.of("emailVerification", handler);
         final Notification<Object> notification = mock(Notification.class);
 
         when(this.context.getBeansOfType(NotificationHandler.class)).thenReturn(handlers);
@@ -63,14 +63,14 @@ class NotificationTemplateInjectorTest {
     @Test
     void givenMissingHandler_whenInjectHandlers_thenThrows() {
         //given
-        final Map<String, NotificationHandler> handlers = Map.of();
+        final Map<String, NotificationHandler<?>> handlers = Map.of();
 
         when(this.context.getBeansOfType(NotificationHandler.class)).thenReturn(handlers);
 
         //when
         assertThatThrownBy(this.subject::injectHandlers)
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("No NotificationHandler bean for template: email-verification");
+                .hasMessage("No NotificationHandler bean for template: emailVerification");
 
         //then
         verify(this.context).getBeansOfType(NotificationHandler.class);

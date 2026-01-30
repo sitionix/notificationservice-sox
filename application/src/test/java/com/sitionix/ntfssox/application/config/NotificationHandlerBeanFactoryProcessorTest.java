@@ -22,7 +22,7 @@ class NotificationHandlerBeanFactoryProcessorTest {
         //given
         final DefaultListableBeanFactory registry = getRegistry();
         final GenericBeanDefinition definition = getBeanDefinition(TestNotificationHandler.class);
-        registry.registerBeanDefinition("email-verification", definition);
+        registry.registerBeanDefinition("emailVerification", definition);
 
         final MockEnvironment environment = getEnvironmentWithMessageProperties();
         final NotificationHandlerBeanFactoryProcessor subject = getProcessor(environment);
@@ -46,7 +46,7 @@ class NotificationHandlerBeanFactoryProcessorTest {
         //given
         final DefaultListableBeanFactory registry = getRegistry();
         final GenericBeanDefinition definition = getBeanDefinition(TestNotificationHandler.class);
-        registry.registerBeanDefinition("email-verification", definition);
+        registry.registerBeanDefinition("emailVerification", definition);
 
         final MockEnvironment environment = getEnvironment();
         final NotificationHandlerBeanFactoryProcessor subject = getProcessor(environment);
@@ -54,7 +54,7 @@ class NotificationHandlerBeanFactoryProcessorTest {
         //when
         assertThatThrownBy(() -> subject.postProcessBeanDefinitionRegistry(registry))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("No message config for handler: email-verification");
+                .hasMessage("No message config for handler: emailVerification");
     }
 
     @Test
@@ -62,7 +62,7 @@ class NotificationHandlerBeanFactoryProcessorTest {
         //given
         final DefaultListableBeanFactory registry = getRegistry();
         final GenericBeanDefinition definition = getBeanDefinition(NoMessagePropertiesConstructorHandler.class);
-        registry.registerBeanDefinition("email-verification", definition);
+        registry.registerBeanDefinition("emailVerification", definition);
 
         final NotificationHandlerBeanFactoryProcessor subject = getProcessor(getEnvironment());
 
@@ -131,7 +131,7 @@ class NotificationHandlerBeanFactoryProcessorTest {
 
     private MockEnvironment getEnvironmentWithMessageProperties() {
         return new MockEnvironment()
-                .withProperty("notification.messages.email-verification.allowed-channels[0]", "EMAIL");
+                .withProperty("notification.messages.emailVerification.allowed-channels[0]", "EMAIL");
     }
 
     private MockEnvironment getEnvironment() {
@@ -150,23 +150,25 @@ class NotificationHandlerBeanFactoryProcessorTest {
 
     private static class TestNotificationHandler extends AbstractNotificationHandler<Object> {
 
-        private TestNotificationHandler(final MessageProperties props) {
+        TestNotificationHandler(final MessageProperties props) {
             super(props);
         }
 
         @Override
         public void send(final Notification<? extends Object> notification) {
+            // no-op: handler behavior is not relevant for registry validation tests
         }
     }
 
     private static class NoMessagePropertiesConstructorHandler extends AbstractNotificationHandler<Object> {
 
-        private NoMessagePropertiesConstructorHandler(final String value) {
+        NoMessagePropertiesConstructorHandler() {
             super(new MessageProperties());
         }
 
         @Override
         public void send(final Notification<? extends Object> notification) {
+            // no-op: handler behavior is not relevant for registry validation tests
         }
     }
 

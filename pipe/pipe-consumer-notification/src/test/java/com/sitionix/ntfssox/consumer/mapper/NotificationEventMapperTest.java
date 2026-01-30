@@ -38,8 +38,7 @@ class NotificationEventMapperTest {
 
     @BeforeEach
     void setUp() {
-        this.subject = new NotificationEventMapperImpl(this.notificationTemplateMapper);
-        this.subject.contentMapper = this.contentMapper;
+        this.subject = new NotificationEventMapperImpl(this.notificationTemplateMapper, this.contentMapper);
     }
 
     @AfterEach

@@ -18,11 +18,11 @@ public class NotificationTemplateInjector {
 
     @PostConstruct
     public void injectHandlers() {
-        final Map<String, NotificationHandler> handlers = this.context.getBeansOfType(NotificationHandler.class);
+        final Map<String, NotificationHandler<?>> handlers = this.context.getBeansOfType(NotificationHandler.class);
 
         Arrays.stream(NotificationTemplate.values())
                 .forEach(template -> {
-                    final NotificationHandler handler = handlers.get(template.getBindingKey());
+                    final NotificationHandler<?> handler = handlers.get(template.getBindingKey());
                     if (handler == null) {
                         throw new IllegalStateException("No NotificationHandler bean for template: " + template.getBindingKey());
                     }

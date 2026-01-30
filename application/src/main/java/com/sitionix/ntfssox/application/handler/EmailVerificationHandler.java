@@ -9,7 +9,7 @@ import com.sitionix.ntfssox.domain.model.Notification;
 import com.sitionix.ntfssox.domain.model.content.EmailVerifyContent;
 import org.springframework.stereotype.Component;
 
-@Component("email-verification")
+@Component("emailVerification")
 public class EmailVerificationHandler extends AbstractNotificationHandler<EmailVerifyContent> {
 
     public EmailVerificationHandler(final MessageProperties props,

@@ -1,6 +1,6 @@
 package com.sitionix.ntfssox.domain.model;
 
-public non-sealed abstract class AbstractNotificationHandler<C> implements NotificationHandler<C> {
+public abstract non-sealed class AbstractNotificationHandler<C> implements NotificationHandler<C> {
 
     protected final MessageProperties props;
 

@@ -8,7 +8,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public enum NotificationTemplate implements NotificationHandler<Object> {
 
-    EMAIL_VERIFY(1L, "email-verification");
+    EMAIL_VERIFY(1L, "emailVerification");
 
     @Getter
     private final Long id;
