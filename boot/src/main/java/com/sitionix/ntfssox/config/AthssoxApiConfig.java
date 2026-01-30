@@ -6,6 +6,7 @@ import com.app_afesox.athssox.client.invoker.ApiClient;
 import lombok.Data;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,10 +37,12 @@ public class AthssoxApiConfig {
     }
 
     @Bean("athssoxRestTemplate")
-    public RestTemplate athssoxRestTemplate() {
+    public RestTemplate athssoxRestTemplate(final RestTemplateBuilder restTemplateBuilder) {
         final HttpComponentsClientHttpRequestFactory requestFactory =
                 new HttpComponentsClientHttpRequestFactory(HttpClients.createDefault());
-        return new RestTemplate(new BufferingClientHttpRequestFactory(requestFactory));
+        return restTemplateBuilder
+                .requestFactory(() -> new BufferingClientHttpRequestFactory(requestFactory))
+                .build();
     }
 
     @Bean("athssoxAuthApi")

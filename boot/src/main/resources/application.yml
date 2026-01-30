@@ -1,0 +1,8 @@
+notification:
+  messages:
+    email-verification:
+      allowedChannels: [ email ]
+      delivery:
+        email:
+          link:
+            url: https://app.sitionix.com/auth/email/verify
