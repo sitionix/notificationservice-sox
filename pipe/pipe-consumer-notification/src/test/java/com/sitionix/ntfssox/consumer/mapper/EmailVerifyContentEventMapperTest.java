@@ -5,7 +5,6 @@ import com.sitionix.ntfssox.domain.model.content.EmailVerifyContent;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,7 +14,7 @@ class EmailVerifyContentEventMapperTest {
 
     @BeforeEach
     void setUp() {
-        this.subject = Mappers.getMapper(EmailVerifyContentEventMapper.class);
+        this.subject = new EmailVerifyContentEventMapperImpl();
     }
 
     @Test

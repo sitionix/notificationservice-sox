@@ -13,8 +13,7 @@ class NotificationTemplateMapperTest {
 
     @BeforeEach
     void setUp() {
-        this.subject = new NotificationTemplateMapper() {
-        };
+        this.subject = new NotificationTemplateMapperImpl();
     }
 
     @Test
