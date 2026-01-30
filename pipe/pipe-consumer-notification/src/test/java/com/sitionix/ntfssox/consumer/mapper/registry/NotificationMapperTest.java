@@ -61,22 +61,22 @@ class NotificationMapperTest {
     @Test
     void givenAssignableMapper_whenAsNotification_thenUsesAssignable() {
         //given
-        final EventContentMapper<String, Number> contentMapper = mock(EventContentMapper.class);
-        final NotificationMapper subject = new NotificationMapper(List.of(contentMapper));
+        final EventContentMapper<String, Number> assignableMapper = mock(EventContentMapper.class);
+        final NotificationMapper subject = new NotificationMapper(List.of(assignableMapper));
         final Integer event = 5;
         final String expected = "mapped-content";
 
-        when(contentMapper.supports()).thenReturn(Number.class);
-        when(contentMapper.asNotification(event)).thenReturn(expected);
+        when(assignableMapper.supports()).thenReturn(Number.class);
+        when(assignableMapper.asNotification(event)).thenReturn(expected);
 
         //when
         final String actual = subject.asNotification(event);
 
         //then
         assertThat(actual).isEqualTo(expected);
-        verify(contentMapper).supports();
-        verify(contentMapper).asNotification(event);
-        verifyNoMoreInteractions(contentMapper);
+        verify(assignableMapper).supports();
+        verify(assignableMapper).asNotification(event);
+        verifyNoMoreInteractions(assignableMapper);
     }
 
     @Test
