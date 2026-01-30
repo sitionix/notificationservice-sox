@@ -4,8 +4,9 @@ import com.app_afesox.ntfssox.events.notifications.NotificationEnvelope;
 import com.app_afesox.ntfssox.events.notifications.NotificationEvent;
 import com.app_afesox.ntfssox.events.notifications.NotificationTemplateDTO;
 import com.sitionix.ntfssox.consumer.mapper.NotificationEventMapper;
+import com.sitionix.ntfssox.domain.model.AbstractNotificationHandler;
+import com.sitionix.ntfssox.domain.model.MessageProperties;
 import com.sitionix.ntfssox.domain.model.Notification;
-import com.sitionix.ntfssox.domain.model.NotificationHandler;
 import com.sitionix.ntfssox.domain.model.NotificationTemplate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -45,7 +47,8 @@ class NotificationConsumerTest {
         final NotificationEnvelope notificationEnvelope = mock(NotificationEnvelope.class);
         final NotificationEvent notificationEvent = mock(NotificationEvent.class);
         final Notification<Object> notification = mock(Notification.class);
-        final NotificationHandler<Object> notificationHandler = mock(NotificationHandler.class);
+        final MessageProperties messageProperties = mock(MessageProperties.class);
+        final TestNotificationHandler notificationHandler = new TestNotificationHandler(messageProperties);
         NotificationTemplate.EMAIL_VERIFY.setHandler(notificationHandler);
 
         when(notificationEnvelope.getPayload()).thenReturn(notificationEvent);
@@ -61,7 +64,25 @@ class NotificationConsumerTest {
         verify(notificationEvent).getTemplate();
         verify(this.notificationEventMapper).asNotification(notificationEvent);
         verify(notification).getTemplate();
-        verify(notificationHandler).send(notification);
-        verifyNoMoreInteractions(notificationEnvelope, notificationEvent, notification, notificationHandler);
+        assertThat(notificationHandler.getReceived()).isEqualTo(notification);
+        verifyNoMoreInteractions(notificationEnvelope, notificationEvent, notification, messageProperties);
+    }
+
+    private static class TestNotificationHandler extends AbstractNotificationHandler<Object> {
+
+        private Notification<?> received;
+
+        private TestNotificationHandler(final MessageProperties messageProperties) {
+            super(messageProperties);
+        }
+
+        @Override
+        public void send(final Notification<? extends Object> notification) {
+            this.received = notification;
+        }
+
+        private Notification<?> getReceived() {
+            return this.received;
+        }
     }
 }

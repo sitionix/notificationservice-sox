@@ -8,7 +8,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,15 +29,16 @@ class NotificationTemplateTest {
     void givenNotification_whenSend_thenDelegatesToHandler() {
         //given
         final Notification<Object> notification = mock(Notification.class);
-        final NotificationHandler<Object> notificationHandler = mock(NotificationHandler.class);
+        final MessageProperties messageProperties = mock(MessageProperties.class);
+        final TestNotificationHandler notificationHandler = new TestNotificationHandler(messageProperties);
         this.subject.setHandler(notificationHandler);
 
         //when
         this.subject.send(notification);
 
         //then
-        verify(notificationHandler).send(notification);
-        verifyNoMoreInteractions(notificationHandler, notification);
+        assertThat(notificationHandler.getReceived()).isEqualTo(notification);
+        verifyNoMoreInteractions(notification, messageProperties);
     }
 
     @Test
@@ -65,4 +65,21 @@ class NotificationTemplateTest {
         assertThat(actual).isNull();
     }
 
+    private static class TestNotificationHandler extends AbstractNotificationHandler<Object> {
+
+        private Notification<?> received;
+
+        private TestNotificationHandler(final MessageProperties messageProperties) {
+            super(messageProperties);
+        }
+
+        @Override
+        public void send(final Notification<? extends Object> notification) {
+            this.received = notification;
+        }
+
+        private Notification<?> getReceived() {
+            return this.received;
+        }
+    }
 }

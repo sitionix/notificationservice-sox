@@ -4,17 +4,14 @@ import com.app_afesox.ntfssox.events.notifications.contents.EmailVerificationCon
 import com.sitionix.ntfssox.consumer.mapper.EventContentMapper;
 import com.sitionix.ntfssox.domain.model.content.EmailVerifyContent;
 import java.util.List;
-import java.util.UUID;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -22,181 +19,104 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class NotificationMapperTest {
 
-    @Nested
-    class ExactMatchMapping {
+    @Test
+    void givenMatchingMapper_whenAsNotification_thenDelegatesToMapper() {
+        //given
+        final EventContentMapper<EmailVerifyContent, EmailVerificationContentDTO> contentMapper = mock(EventContentMapper.class);
+        final NotificationMapper subject = new NotificationMapper(List.of(contentMapper));
+        final EmailVerificationContentDTO event = mock(EmailVerificationContentDTO.class);
+        final EmailVerifyContent expected = mock(EmailVerifyContent.class);
 
-        @Mock
-        private EventContentMapper<EmailVerifyContent, EmailVerificationContentDTO> contentMapper;
+        when(contentMapper.supports()).thenReturn(EmailVerificationContentDTO.class);
+        when(contentMapper.asNotification(event)).thenReturn(expected);
 
-        private NotificationMapper subject;
+        //when
+        final EmailVerifyContent actual = subject.asNotification(event);
 
-        @BeforeEach
-        void setUp() {
-            when(this.contentMapper.supports()).thenReturn(EmailVerificationContentDTO.class);
-            this.subject = new NotificationMapper(List.of(this.contentMapper));
-        }
-
-        @AfterEach
-        void tearDown() {
-            verifyNoMoreInteractions(this.contentMapper);
-        }
-
-        @Test
-        void givenMatchingMapper_whenAsNotification_thenDelegatesToMapper() {
-            //given
-            final EmailVerificationContentDTO event = getEmailVerificationContentDto();
-            final EmailVerifyContent expected = getEmailVerifyContent();
-
-            when(this.contentMapper.asNotification(event)).thenReturn(expected);
-
-            //when
-            final EmailVerifyContent actual = this.subject.asNotification(event);
-
-            //then
-            assertThat(actual).isEqualTo(expected);
-            verify(this.contentMapper).supports();
-            verify(this.contentMapper).asNotification(event);
-        }
-
-        @Test
-        void givenNullEvent_whenAsNotification_thenReturnsNull() {
-            //given
-            final EmailVerificationContentDTO event = null;
-
-            //when
-            final EmailVerifyContent actual = this.subject.asNotification(event);
-
-            //then
-            assertThat(actual).isNull();
-            verify(this.contentMapper).supports();
-        }
+        //then
+        assertThat(actual).isSameAs(expected);
+        verify(contentMapper).supports();
+        verify(contentMapper).asNotification(event);
+        verifyNoMoreInteractions(contentMapper, event, expected);
     }
 
-    @Nested
-    class AssignableMapping {
+    @Test
+    void givenNullEvent_whenAsNotification_thenReturnsNull() {
+        //given
+        final EventContentMapper<EmailVerifyContent, EmailVerificationContentDTO> contentMapper = mock(EventContentMapper.class);
+        final NotificationMapper subject = new NotificationMapper(List.of(contentMapper));
+        final EmailVerificationContentDTO event = null;
 
-        @Mock
-        private EventContentMapper<String, BaseContent> contentMapper;
+        when(contentMapper.supports()).thenReturn(EmailVerificationContentDTO.class);
 
-        private NotificationMapper subject;
+        //when
+        final EmailVerifyContent actual = subject.asNotification(event);
 
-        @BeforeEach
-        void setUp() {
-            when(this.contentMapper.supports()).thenReturn(BaseContent.class);
-            this.subject = new NotificationMapper(List.of(this.contentMapper));
-        }
-
-        @AfterEach
-        void tearDown() {
-            verifyNoMoreInteractions(this.contentMapper);
-        }
-
-        @Test
-        void givenAssignableMapper_whenAsNotification_thenUsesAssignable() {
-            //given
-            final DerivedContent event = getDerivedContent();
-            final String expected = "mapped-content";
-
-            when(this.contentMapper.asNotification(event)).thenReturn(expected);
-
-            //when
-            final String actual = this.subject.asNotification(event);
-
-            //then
-            assertThat(actual).isEqualTo(expected);
-            verify(this.contentMapper).supports();
-            verify(this.contentMapper).asNotification(event);
-        }
+        //then
+        assertThat(actual).isNull();
+        verify(contentMapper).supports();
+        verifyNoMoreInteractions(contentMapper);
     }
 
-    @Nested
-    class MissingMapper {
+    @Test
+    void givenAssignableMapper_whenAsNotification_thenUsesAssignable() {
+        //given
+        final EventContentMapper<String, Number> contentMapper = mock(EventContentMapper.class);
+        final NotificationMapper subject = new NotificationMapper(List.of(contentMapper));
+        final Integer event = 5;
+        final String expected = "mapped-content";
 
-        @Mock
-        private EventContentMapper<EmailVerifyContent, EmailVerificationContentDTO> contentMapper;
+        when(contentMapper.supports()).thenReturn(Number.class);
+        when(contentMapper.asNotification(event)).thenReturn(expected);
 
-        private NotificationMapper subject;
+        //when
+        final String actual = subject.asNotification(event);
 
-        @BeforeEach
-        void setUp() {
-            when(this.contentMapper.supports()).thenReturn(BaseContent.class);
-            this.subject = new NotificationMapper(List.of(this.contentMapper));
-        }
-
-        @AfterEach
-        void tearDown() {
-            verifyNoMoreInteractions(this.contentMapper);
-        }
-
-        @Test
-        void givenNoMapperFound_whenAsNotification_thenThrows() {
-            //given
-            final EmailVerificationContentDTO event = getEmailVerificationContentDto();
-
-            //when
-            final Throwable thrown = catchThrowable(() -> this.subject.asNotification(event));
-
-            //then
-            assertThat(thrown)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining(EmailVerificationContentDTO.class.getName());
-            verify(this.contentMapper).supports();
-        }
+        //then
+        assertThat(actual).isEqualTo(expected);
+        verify(contentMapper).supports();
+        verify(contentMapper).asNotification(event);
+        verifyNoMoreInteractions(contentMapper);
     }
 
-    @Nested
-    class DuplicateMapperSupport {
+    @Test
+    void givenNoMapperFound_whenAsNotification_thenThrows() {
+        //given
+        final EventContentMapper<Object, Number> contentMapper = mock(EventContentMapper.class);
+        final NotificationMapper subject = new NotificationMapper(List.of(contentMapper));
+        final String event = "event";
 
-        @Mock
-        private EventContentMapper<Object, Object> firstMapper;
+        when(contentMapper.supports()).thenReturn(Number.class);
 
-        @Mock
-        private EventContentMapper<Object, Object> secondMapper;
+        //when
+        final Throwable thrown = catchThrowable(() -> subject.asNotification(event));
 
-        @AfterEach
-        void tearDown() {
-            verifyNoMoreInteractions(this.firstMapper, this.secondMapper);
-        }
-
-        @Test
-        void givenDuplicateMapperSupport_whenConstruct_thenThrows() {
-            //given
-            when(this.firstMapper.supports()).thenReturn(Object.class);
-            when(this.secondMapper.supports()).thenReturn(Object.class);
-
-            //when
-            final Throwable thrown = catchThrowable(() -> new NotificationMapper(List.of(this.firstMapper, this.secondMapper)));
-
-            //then
-            assertThat(thrown)
-                    .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining(Object.class.getName());
-            verify(this.firstMapper).supports();
-            verify(this.secondMapper).supports();
-        }
+        //then
+        assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(String.class.getName());
+        verify(contentMapper).supports();
+        verifyNoMoreInteractions(contentMapper);
     }
 
-    private EmailVerificationContentDTO getEmailVerificationContentDto() {
-        return new EmailVerificationContentDTO(
-                "55555555-5555-5555-5555-555555555555",
-                "66666666-6666-6666-6666-666666666666"
-        );
-    }
+    @Test
+    void givenDuplicateMapperSupport_whenConstruct_thenThrows() {
+        //given
+        final EventContentMapper<Object, Object> firstMapper = mock(EventContentMapper.class);
+        final EventContentMapper<Object, Object> secondMapper = mock(EventContentMapper.class);
 
-    private EmailVerifyContent getEmailVerifyContent() {
-        return EmailVerifyContent.builder()
-                .verificationTokenId(UUID.fromString("55555555-5555-5555-5555-555555555555"))
-                .pepperId(UUID.fromString("66666666-6666-6666-6666-666666666666"))
-                .build();
-    }
+        when(firstMapper.supports()).thenReturn(Object.class);
+        when(secondMapper.supports()).thenReturn(Object.class);
 
-    private DerivedContent getDerivedContent() {
-        return new DerivedContent();
-    }
+        //when
+        final Throwable thrown = catchThrowable(() -> new NotificationMapper(List.of(firstMapper, secondMapper)));
 
-    private static class BaseContent {
-    }
-
-    private static class DerivedContent extends BaseContent {
+        //then
+        assertThat(thrown)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining(Object.class.getName());
+        verify(firstMapper, atLeastOnce()).supports();
+        verify(secondMapper, atLeastOnce()).supports();
+        verifyNoMoreInteractions(firstMapper, secondMapper);
     }
 }
