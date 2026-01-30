@@ -42,6 +42,18 @@ class EmailVerifyContentEventMapperTest {
         assertThat(actual).isNull();
     }
 
+    @Test
+    void givenMapper_whenSupports_thenReturnsEventClass() {
+        //given
+        final Class<EmailVerificationContentDTO> expected = EmailVerificationContentDTO.class;
+
+        //when
+        final Class<EmailVerificationContentDTO> actual = this.subject.supports();
+
+        //then
+        assertThat(actual).isEqualTo(expected);
+    }
+
     private EmailVerificationContentDTO getEmailVerificationContentDto() {
         return new EmailVerificationContentDTO(
                 "33333333-3333-3333-3333-333333333333",
