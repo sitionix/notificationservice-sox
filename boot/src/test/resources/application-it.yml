@@ -3,7 +3,7 @@ api:
   rest:
     client:
       bffssox:
-        base-path: http://127.0.0.1:${forge-it.wiremock.port:8080}/bffssox
+        base-path: http://localhost:${forge-it.wiremock.port:8080}/bffssox
       athssox:
         base-path: http://localhost:${forge-it.wiremock.port:8080}/authsox
 notification:
