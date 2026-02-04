@@ -3,14 +3,25 @@ api:
   rest:
     client:
       bffssox:
-        base-path: ${forge-it.wiremock.base-url:http://localhost:8080}/bffssox
+        base-path: http://127.0.0.1:${forge-it.wiremock.port:8080}/bffssox
       athssox:
-        base-path: ${forge-it.wiremock.base-url:http://localhost:8080}/authsox
+        base-path: http://localhost:${forge-it.wiremock.port:8080}/authsox
 notification:
   messages:
     email-verification:
-      allowedChannels: [ email ]
+      allowedChannels:
+        - email
       delivery:
         email:
           link:
             url: https://app.sitionix.com/auth/email/verify
+forge:
+  security:
+    service-id: sitionixNotification
+    dev:
+      jwt-secret: dev-internal-auth-secret
+      issuer: sitionix-internal
+      ttl-seconds: 300
+    targets:
+      sitionixAuth:
+        host: localhost
