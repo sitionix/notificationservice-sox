@@ -1,8 +1,7 @@
 notification:
   messages:
     email-verification:
-      allowedChannels:
-        - email
+      allowedChannels: [ email ]
       delivery:
         email:
           link:
@@ -17,3 +16,5 @@ forge:
     targets:
       sitionixAuth:
         host: authorisationservice-sox
+      sitionixBff:
+        host: bffssox-service
