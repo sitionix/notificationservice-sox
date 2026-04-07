@@ -1,3 +1,28 @@
+spring:
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: "health,info"
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+api:
+  rest:
+    client:
+      athssox:
+        base-path: ${API_REST_CLIENT_ATHSSOX_BASE_PATH:http://authorisationservice-sox:9090/authsox}
+      bffssox:
+        base-path: ${API_REST_CLIENT_BFFSSOX_BASE_PATH:http://bffssox-service:8080/bffssox}
 notification:
   messages:
     email-verification:
@@ -15,6 +40,6 @@ forge:
       ttl-seconds: ${FORGE_SECURITY_DEV_TTL_SECONDS:300}
     targets:
       sitionixAuth:
-        host: authorisationservice-sox
+        host: ${FORGE_SECURITY_TARGETS_SITIONIXAUTH_HOST:authorisationservice-sox}
       sitionixBff:
-        host: bffssox-service
+        host: ${FORGE_SECURITY_TARGETS_SITIONIXBFF_HOST:bffssox-service}

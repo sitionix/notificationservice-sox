@@ -11,6 +11,8 @@ jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -38,32 +40,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2-
 
-      - name: Setup Maven settings
-        env:
-          APP_TOKEN: ${{ secrets.APP_TOKEN }}
-        run: |
-          mkdir -p ~/.m2
-          echo "          <settings>
-            <servers>
-              <server>
-                <id>github-forge-it</id>
-                <username>${{ github.actor }}</username>
-                <password>${APP_TOKEN}</password>
-              </server>
-              <server>
-                <id>github-app-afesox</id>
-                <username>${{ github.actor }}</username>
-                <password>${APP_TOKEN}</password>
-              </server>
-            </servers>
-          </settings>" > ~/.m2/settings.xml
+      - name: Materialize Maven settings
+        uses: ./.github/actions/materialize-maven-settings
+        with:
+          maven_repository_username: ${{ vars.MAVEN_REPOSITORY_USERNAME }}
+          maven_repository_token: ${{ secrets.MAVEN_REPOSITORY_TOKEN }}
+          output_path: .maven-settings.xml
 
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.APP_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: >
-          mvn -B verify
+          mvn -B -ntp -s .maven-settings.xml -DskipITs verify
           org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.organization=sitionix-vv
