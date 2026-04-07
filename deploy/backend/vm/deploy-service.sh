@@ -50,6 +50,28 @@ rollback_previous_container() {
   docker start "${SITIONIX_CONTAINER_NAME}" >/dev/null
 }
 
+retry_command() {
+  local description="$1"
+  shift
+
+  local max_attempts=5
+  local attempt=1
+
+  while (( attempt <= max_attempts )); do
+    if "$@"; then
+      return 0
+    fi
+
+    if (( attempt == max_attempts )); then
+      echo "Failed after ${max_attempts} attempts: ${description}" >&2
+      return 1
+    fi
+
+    sleep $((attempt * 3))
+    ((attempt++))
+  done
+}
+
 for variable_name in \
   SITIONIX_RELEASE_ID \
   SITIONIX_IMAGE_REF \
@@ -59,6 +81,7 @@ for variable_name in \
   SITIONIX_HOST_PORT \
   SITIONIX_CONTAINER_PORT \
   SITIONIX_ACTIVE_PROFILE \
+  SITIONIX_ENVIRONMENT \
   SITIONIX_DOCKER_NETWORK \
   SITIONIX_RUNTIME_ROOT \
   SITIONIX_BACKUP_ROOT \
@@ -90,11 +113,13 @@ if [[ ! -f "${SITIONIX_SHARED_SECRET_ENV_PATH}" ]]; then
   exit 1
 fi
 
-printf '%s\n' "${GHCR_PULL_TOKEN}" | docker login ghcr.io -u "${GHCR_PULL_USERNAME}" --password-stdin
-docker pull "${SITIONIX_IMAGE_REF}"
+retry_command "docker login ghcr.io" bash -lc \
+  "printf '%s\n' \"\$GHCR_PULL_TOKEN\" | docker login ghcr.io -u \"\$GHCR_PULL_USERNAME\" --password-stdin"
+retry_command "docker pull ${SITIONIX_IMAGE_REF}" docker pull "${SITIONIX_IMAGE_REF}"
 
 cat <<EOF > "${SITIONIX_SERVICE_ENV_PATH}"
 SPRING_PROFILES_ACTIVE=${SITIONIX_ACTIVE_PROFILE}
+ENVIRONMENT=${SITIONIX_ENVIRONMENT}
 SPRING_KAFKA_BOOTSTRAP_SERVERS=${SITIONIX_KAFKA_BOOTSTRAP_SERVERS}
 API_REST_CLIENT_ATHSSOX_BASE_PATH=${SITIONIX_AUTH_BASE_URL}
 API_REST_CLIENT_BFFSSOX_BASE_PATH=${SITIONIX_BFF_BASE_URL}
