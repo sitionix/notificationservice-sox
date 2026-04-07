@@ -103,6 +103,7 @@ runs:
         SITIONIX_HOST_PORT=8081
         SITIONIX_CONTAINER_PORT=8080
         SITIONIX_ACTIVE_PROFILE=dev
+        SITIONIX_ENVIRONMENT=${GITHUB_ENVIRONMENT_NAME}
         SITIONIX_DOCKER_NETWORK=sitionix-dev
         SITIONIX_RUNTIME_ROOT=/opt/sitionix/runtime/notificationservice-sox
         SITIONIX_BACKUP_ROOT=/opt/sitionix/backups/notificationservice-sox
