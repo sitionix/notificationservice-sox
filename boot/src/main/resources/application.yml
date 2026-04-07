@@ -1,3 +1,4 @@
+environment: ${ENVIRONMENT:dev}
 spring:
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
