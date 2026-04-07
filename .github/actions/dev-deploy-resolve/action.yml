@@ -1,0 +1,37 @@
+name: Dev Deploy Resolve
+description: Backward-compatible alias for the notification service deploy resolver.
+
+runs:
+  using: composite
+  steps:
+    - name: Delegate to service deploy resolve
+      id: delegate
+      uses: ./.github/actions/service-deploy-resolve
+      with:
+        comment_body: ${{ inputs.comment_body }}
+        is_pull_request: ${{ inputs.is_pull_request }}
+
+inputs:
+  comment_body:
+    description: Pull request comment body that triggered the workflow.
+    required: true
+  is_pull_request:
+    description: Whether the GitHub event targets a pull request.
+    required: true
+
+outputs:
+  enabled:
+    description: Whether the comment matches the service deploy contract.
+    value: ${{ steps.delegate.outputs.enabled }}
+  environment_id:
+    description: Target environment selected by the trigger comment.
+    value: ${{ steps.delegate.outputs.environment_id }}
+  service_name:
+    description: Canonical service name selected by the trigger comment.
+    value: ${{ steps.delegate.outputs.service_name }}
+  summary:
+    description: Short human-readable deploy target summary.
+    value: ${{ steps.delegate.outputs.summary }}
+  reason:
+    description: Reason why the command was ignored.
+    value: ${{ steps.delegate.outputs.reason }}

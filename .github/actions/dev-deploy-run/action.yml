@@ -1,0 +1,24 @@
+name: Dev Deploy Run
+description: Backward-compatible alias for the notification service deploy runner.
+
+inputs:
+  github_environment:
+    description: GitHub Environment name used to generate the release id.
+    required: true
+
+outputs:
+  release_id:
+    description: Generated release id.
+    value: ${{ steps.delegate.outputs.release_id }}
+  image_ref:
+    description: Published immutable image reference.
+    value: ${{ steps.delegate.outputs.image_ref }}
+
+runs:
+  using: composite
+  steps:
+    - name: Delegate to service deploy run
+      id: delegate
+      uses: ./.github/actions/service-deploy-run
+      with:
+        github_environment: ${{ inputs.github_environment }}
