@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+payload_dir="$(cd "${script_dir}/.." && pwd)"
+
+# shellcheck source=/dev/null
+source "${payload_dir}/release.env"
+
+require_env() {
+  local variable_name="$1"
+  if [[ -z "${!variable_name:-}" ]]; then
+    echo "Missing required environment variable: ${variable_name}" >&2
+    exit 1
+  fi
+}
+
+assert_absolute_path() {
+  local path_value="$1"
+  local allowed_prefix="$2"
+
+  if [[ "${path_value}" != "${allowed_prefix}"* ]]; then
+    echo "Path ${path_value} must stay under ${allowed_prefix}" >&2
+    exit 1
+  fi
+}
+
+wait_for_readiness() {
+  local max_attempts=30
+  local attempt=1
+
+  while (( attempt <= max_attempts )); do
+    if curl --connect-timeout 2 --max-time 5 -fsS "${SITIONIX_LOCAL_READINESS_URL}" >/dev/null; then
+      return 0
+    fi
+    sleep 2
+    ((attempt++))
+  done
+
+  return 1
+}
+
+rollback_previous_container() {
+  if [[ -z "${previous_container_name:-}" ]]; then
+    return
+  fi
+  docker rm -f "${SITIONIX_CONTAINER_NAME}" >/dev/null 2>&1 || true
+  docker rename "${previous_container_name}" "${SITIONIX_CONTAINER_NAME}"
+  docker start "${SITIONIX_CONTAINER_NAME}" >/dev/null
+}
+
+for variable_name in \
+  SITIONIX_RELEASE_ID \
+  SITIONIX_IMAGE_REF \
+  SITIONIX_CONTAINER_NAME \
+  SITIONIX_NETWORK_ALIAS \
+  SITIONIX_BIND_ADDRESS \
+  SITIONIX_HOST_PORT \
+  SITIONIX_CONTAINER_PORT \
+  SITIONIX_ACTIVE_PROFILE \
+  SITIONIX_DOCKER_NETWORK \
+  SITIONIX_RUNTIME_ROOT \
+  SITIONIX_BACKUP_ROOT \
+  SITIONIX_SHARED_SECRET_ENV_PATH \
+  SITIONIX_SERVICE_ENV_PATH \
+  SITIONIX_LOCAL_READINESS_URL \
+  SITIONIX_LOCAL_HEALTH_URL \
+  SITIONIX_KAFKA_BOOTSTRAP_SERVERS \
+  SITIONIX_AUTH_BASE_URL \
+  SITIONIX_BFF_BASE_URL \
+  GHCR_PULL_USERNAME \
+  GHCR_PULL_TOKEN; do
+  require_env "${variable_name}"
+done
+
+assert_absolute_path "${SITIONIX_RUNTIME_ROOT}" "/opt/sitionix/"
+assert_absolute_path "${SITIONIX_BACKUP_ROOT}" "/opt/sitionix/"
+assert_absolute_path "${SITIONIX_SHARED_SECRET_ENV_PATH}" "/opt/sitionix/"
+assert_absolute_path "${SITIONIX_SERVICE_ENV_PATH}" "/opt/sitionix/"
+
+release_backup_root="${SITIONIX_BACKUP_ROOT}/releases/${SITIONIX_RELEASE_ID}"
+mkdir -p "${release_backup_root}"
+mkdir -p "$(dirname "${SITIONIX_SERVICE_ENV_PATH}")"
+
+cp "${payload_dir}/release-manifest.json" "${release_backup_root}/release-manifest.json"
+
+if [[ ! -f "${SITIONIX_SHARED_SECRET_ENV_PATH}" ]]; then
+  echo "Missing shared internal auth secret file: ${SITIONIX_SHARED_SECRET_ENV_PATH}" >&2
+  exit 1
+fi
+
+printf '%s\n' "${GHCR_PULL_TOKEN}" | docker login ghcr.io -u "${GHCR_PULL_USERNAME}" --password-stdin
+docker pull "${SITIONIX_IMAGE_REF}"
+
+cat <<EOF > "${SITIONIX_SERVICE_ENV_PATH}"
+SPRING_PROFILES_ACTIVE=${SITIONIX_ACTIVE_PROFILE}
+SPRING_KAFKA_BOOTSTRAP_SERVERS=${SITIONIX_KAFKA_BOOTSTRAP_SERVERS}
+API_REST_CLIENT_ATHSSOX_BASE_PATH=${SITIONIX_AUTH_BASE_URL}
+API_REST_CLIENT_BFFSSOX_BASE_PATH=${SITIONIX_BFF_BASE_URL}
+EOF
+chmod 0600 "${SITIONIX_SERVICE_ENV_PATH}"
+
+if ! docker network inspect "${SITIONIX_DOCKER_NETWORK}" >/dev/null 2>&1; then
+  docker network create "${SITIONIX_DOCKER_NETWORK}" >/dev/null
+fi
+
+previous_container_name=""
+staged_previous_name="${SITIONIX_CONTAINER_NAME}.previous"
+docker rm -f "${staged_previous_name}" >/dev/null 2>&1 || true
+
+if docker container inspect "${SITIONIX_CONTAINER_NAME}" >/dev/null 2>&1; then
+  previous_container_name="${staged_previous_name}"
+  docker stop "${SITIONIX_CONTAINER_NAME}" >/dev/null
+  docker rename "${SITIONIX_CONTAINER_NAME}" "${staged_previous_name}"
+fi
+
+docker rm -f "${SITIONIX_CONTAINER_NAME}" >/dev/null 2>&1 || true
+
+if ! docker run -d \
+  --name "${SITIONIX_CONTAINER_NAME}" \
+  --restart unless-stopped \
+  --network "${SITIONIX_DOCKER_NETWORK}" \
+  --network-alias "${SITIONIX_NETWORK_ALIAS}" \
+  -p "${SITIONIX_BIND_ADDRESS}:${SITIONIX_HOST_PORT}:${SITIONIX_CONTAINER_PORT}" \
+  --env-file "${SITIONIX_SHARED_SECRET_ENV_PATH}" \
+  --env-file "${SITIONIX_SERVICE_ENV_PATH}" \
+  "${SITIONIX_IMAGE_REF}" >/dev/null; then
+  rollback_previous_container
+  exit 1
+fi
+
+if ! wait_for_readiness; then
+  docker logs "${SITIONIX_CONTAINER_NAME}" --tail 200 >&2 || true
+  rollback_previous_container
+  exit 1
+fi
+
+if ! curl --connect-timeout 2 --max-time 5 -fsS "${SITIONIX_LOCAL_HEALTH_URL}" >/dev/null; then
+  echo "Notification health endpoint is not reachable: ${SITIONIX_LOCAL_HEALTH_URL}" >&2
+  docker logs "${SITIONIX_CONTAINER_NAME}" --tail 200 >&2 || true
+  rollback_previous_container
+  exit 1
+fi
+
+if [[ -n "${previous_container_name}" ]]; then
+  docker rm -f "${previous_container_name}" >/dev/null 2>&1 || true
+fi
+
+docker ps --filter "name=^${SITIONIX_CONTAINER_NAME}$"

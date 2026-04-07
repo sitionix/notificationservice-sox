@@ -20,7 +20,7 @@ COPY clients/client-athssox/src clients/client-athssox/src
 COPY clients/client-bffssox/src clients/client-bffssox/src
 
 RUN --mount=type=secret,id=maven_settings,target=/root/.m2/settings.xml \
-    mvn -pl boot -am -DskipTests package
+    mvn -B -ntp -e -pl boot -am -DskipTests package
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
