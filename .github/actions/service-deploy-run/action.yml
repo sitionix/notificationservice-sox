@@ -1,5 +1,5 @@
-name: Dev Deploy Run
-description: Build, publish, deploy, and verify the notification service on the dev VM.
+name: Service Deploy Run
+description: Build, publish, deploy, and verify the notification service on the target VM.
 
 inputs:
   github_environment:
@@ -102,13 +102,13 @@ runs:
         SITIONIX_BIND_ADDRESS=127.0.0.1
         SITIONIX_HOST_PORT=8081
         SITIONIX_CONTAINER_PORT=8080
-        SITIONIX_ACTIVE_PROFILE=dev
+        SITIONIX_ACTIVE_PROFILE=${GITHUB_ENVIRONMENT_NAME}
         SITIONIX_ENVIRONMENT=${GITHUB_ENVIRONMENT_NAME}
-        SITIONIX_DOCKER_NETWORK=sitionix-dev
+        SITIONIX_DOCKER_NETWORK=sitionix-${GITHUB_ENVIRONMENT_NAME}
         SITIONIX_RUNTIME_ROOT=/opt/sitionix/runtime/notificationservice-sox
         SITIONIX_BACKUP_ROOT=/opt/sitionix/backups/notificationservice-sox
-        SITIONIX_SHARED_SECRET_ENV_PATH=/opt/sitionix/runtime/shared/dev-internal-auth.env
-        SITIONIX_SERVICE_ENV_PATH=/opt/sitionix/runtime/notificationservice-sox/shared/notificationservice-sox.dev.env
+        SITIONIX_SHARED_SECRET_ENV_PATH=/opt/sitionix/runtime/shared/${GITHUB_ENVIRONMENT_NAME}-internal-auth.env
+        SITIONIX_SERVICE_ENV_PATH=/opt/sitionix/runtime/notificationservice-sox/shared/notificationservice-sox.${GITHUB_ENVIRONMENT_NAME}.env
         SITIONIX_LOCAL_READINESS_URL=http://127.0.0.1:8081/actuator/health/readiness
         SITIONIX_LOCAL_HEALTH_URL=http://127.0.0.1:8081/actuator/health
         SITIONIX_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
@@ -122,7 +122,7 @@ runs:
           "imageRef": "${IMAGE_REF}",
           "githubSha": "${GITHUB_SHA}",
           "githubEnvironment": "${GITHUB_ENVIRONMENT_NAME}",
-          "dockerNetwork": "sitionix-dev",
+          "dockerNetwork": "sitionix-${GITHUB_ENVIRONMENT_NAME}",
           "containerName": "notificationservice-sox",
           "privateHostPort": "127.0.0.1:8081",
           "privateBaseUrl": "http://notificationservice-sox:8080"

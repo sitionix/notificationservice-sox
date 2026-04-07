@@ -8,8 +8,8 @@ on:
       - ".github/workflows/dev-deploy-on-push.yml"
       - ".github/workflows/deploy-on-comment.yml"
       - ".github/workflows/service-deploy-on-command.yml"
-      - ".github/actions/dev-deploy-run/**"
-      - ".github/actions/dev-deploy-resolve/**"
+      - ".github/actions/service-deploy-run/**"
+      - ".github/actions/service-deploy-resolve/**"
       - ".github/actions/materialize-maven-settings/**"
       - "deploy/backend/**"
       - "boot/**"
@@ -40,7 +40,7 @@ jobs:
           ref: ${{ github.sha }}
 
       - name: Execute dev deployment
-        uses: ./.github/actions/dev-deploy-run
+        uses: ./.github/actions/service-deploy-run
         with:
           github_environment: dev
         env:

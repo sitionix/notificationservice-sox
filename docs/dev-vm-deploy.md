@@ -5,9 +5,9 @@
 This repo deploys `notificationservice-sox` to the existing dev VM as a Docker container on the shared runtime host.
 
 - runtime mode: Docker container on the VM
-- active Spring profile: `dev`
+- active Spring profile on auto-deploy: `dev`
 
-The deployment is push-based:
+The deployment is push-based for `develop -> dev`:
 
 - GitHub Actions builds and publishes an immutable image
 - GitHub Actions uploads a small rollout bundle to the VM
@@ -22,8 +22,8 @@ Container contract:
 - bind address: `127.0.0.1:8081`
 - container port: `8080`
 - restart policy: `unless-stopped`
-- Docker network: `sitionix-dev`
-- Spring profile: `dev`
+- Docker network on auto-deploy: `sitionix-dev`
+- Spring profile on auto-deploy: `dev`
 
 The container consumes two VM-side env files:
 
@@ -38,6 +38,7 @@ It requires that file to already exist on the VM.
 The notification-only runtime file contains:
 
 - `SPRING_PROFILES_ACTIVE=dev`
+- `ENVIRONMENT=dev`
 - `SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092`
 - `API_REST_CLIENT_ATHSSOX_BASE_PATH=http://authorisationservice-sox:9090/authsox`
 - `API_REST_CLIENT_BFFSSOX_BASE_PATH=http://bffssox-service:8080/bffssox`
@@ -73,8 +74,8 @@ Comment execution workflow:
 - `.github/workflows/service-deploy-on-command.yml`
 
 Composite actions:
-- `.github/actions/dev-deploy-run/action.yml`
-- `.github/actions/dev-deploy-resolve/action.yml`
+- `.github/actions/service-deploy-run/action.yml`
+- `.github/actions/service-deploy-resolve/action.yml`
 - `.github/actions/materialize-maven-settings/action.yml`
 
 Flow:
@@ -108,6 +109,23 @@ This proves:
 - the container booted under `dev`
 - the deployed notification service is reachable on the VM loopback bind
 - Spring actuator health endpoints are serving correctly
+
+## Environment contract
+
+The auto-deploy workflow is intentionally fixed to `develop -> dev`.
+
+The service deploy action itself is environment-driven:
+
+- Spring profile is set to the GitHub Environment name
+- `ENVIRONMENT` is set to the same value
+- shared auth file path is resolved as `/opt/sitionix/runtime/shared/<env>-internal-auth.env`
+- service env file path is resolved as `/opt/sitionix/runtime/notificationservice-sox/shared/notificationservice-sox.<env>.env`
+- Docker network is resolved as `sitionix-<env>`
+
+That means a new environment does not require workflow rewrites for service deploy. It only needs:
+
+- GitHub Environment vars/secrets
+- matching runtime prerequisites on the target VM
 
 ## GitHub contract
 
