@@ -27,9 +27,6 @@ on:
         required: false
         type: string
 
-permissions:
-  contents: read
-
 jobs:
   resolve-deploy-target:
     runs-on: ubuntu-latest
