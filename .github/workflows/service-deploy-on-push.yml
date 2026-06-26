@@ -1,0 +1,84 @@
+name: Service Deploy On Push
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - ".github/workflows/service-deploy-on-push.yml"
+      - ".github/workflows/deploy-on-comment.yml"
+      - ".github/workflows/service-deploy-on-command.yml"
+      - ".github/actions/service-deploy-run/**"
+      - ".github/actions/service-deploy-resolve/**"
+      - ".github/actions/materialize-maven-settings/**"
+      - "deploy/backend/**"
+      - "boot/**"
+      - "application/**"
+      - "domain/**"
+      - "clients/**"
+      - "pipe/**"
+      - "Dockerfile"
+      - "pom.xml"
+      - "docs/**"
+  workflow_dispatch:
+    inputs:
+      environment_id:
+        description: GitHub Environment id to deploy. Falls back to PUSH_DEPLOY_ENVIRONMENT_ID when omitted.
+        required: false
+        type: string
+
+jobs:
+  resolve-deploy-target:
+    runs-on: ubuntu-latest
+    outputs:
+      environment_id: ${{ steps.resolve.outputs.environment_id }}
+    steps:
+      - name: Resolve deploy environment
+        id: resolve
+        shell: bash
+        env:
+          INPUT_ENVIRONMENT_ID: ${{ github.event.inputs.environment_id }}
+          PUSH_ENVIRONMENT_ID: ${{ vars.PUSH_DEPLOY_ENVIRONMENT_ID }}
+        run: |
+          environment_id="${INPUT_ENVIRONMENT_ID:-}"
+          if [[ -z "${environment_id}" ]]; then
+            environment_id="${PUSH_ENVIRONMENT_ID:-}"
+          fi
+          if [[ -z "${environment_id}" ]]; then
+            echo "Missing deployment environment. Set PUSH_DEPLOY_ENVIRONMENT_ID or provide workflow_dispatch environment_id." >&2
+            exit 1
+          fi
+          if [[ ! "${environment_id}" =~ ^[a-z][a-z0-9-]*$ ]]; then
+            echo "Invalid deployment environment: ${environment_id}" >&2
+            exit 1
+          fi
+          echo "environment_id=${environment_id}" >> "${GITHUB_OUTPUT}"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - resolve-deploy-target
+    environment: ${{ needs.resolve-deploy-target.outputs.environment_id }}
+    permissions:
+      contents: read
+      packages: write
+    env:
+      DEPLOY_VM_PORT: ${{ vars.DEPLOY_VM_PORT }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Execute deployment
+        uses: ./.github/actions/service-deploy-run
+        with:
+          github_environment: ${{ needs.resolve-deploy-target.outputs.environment_id }}
+        env:
+          DEPLOY_VM_PORT: ${{ vars.DEPLOY_VM_PORT }}
+          DEPLOY_VM_HOST: ${{ secrets.DEPLOY_VM_HOST }}
+          DEPLOY_VM_USER: ${{ secrets.DEPLOY_VM_USER }}
+          DEPLOY_VM_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_VM_SSH_PRIVATE_KEY }}
+          GHCR_PULL_USERNAME: ${{ secrets.GHCR_PULL_USERNAME }}
+          GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
+          MAVEN_REPOSITORY_USERNAME: ${{ vars.MAVEN_REPOSITORY_USERNAME }}
+          MAVEN_REPOSITORY_TOKEN: ${{ secrets.MAVEN_REPOSITORY_TOKEN }}
